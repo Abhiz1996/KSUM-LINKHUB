@@ -460,6 +460,60 @@ button {
   margin-top: 26px;
 }
 
+.attire-card {
+  max-width: 780px;
+}
+
+.attire-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.attire-grid > div {
+  min-height: 210px;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 10px;
+  padding: 26px 22px;
+  border: 1px solid rgba(127, 184, 200, 0.22);
+  border-radius: 8px;
+  background: rgba(251, 251, 248, 0.82);
+}
+
+.attire-mark {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f1d36b, #cda12b);
+  color: var(--brass);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.attire-grid h3 {
+  margin: 0;
+  color: var(--brass);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2.2rem;
+}
+
+.attire-grid p {
+  max-width: 270px;
+  margin: 0;
+  line-height: 1.7;
+}
+
+.attire-note {
+  margin-top: 24px;
+  color: var(--coral);
+  font-weight: 700;
+}
+
 .closing-note {
   width: min(720px, calc(100% - 32px));
   margin-bottom: 88px;
@@ -526,6 +580,10 @@ button {
 
   .countdown {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .attire-grid {
+    grid-template-columns: 1fr;
   }
 }
 
