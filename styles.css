@@ -99,23 +99,10 @@ button {
   z-index: 0;
   opacity: 0.7;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(201, 154, 46, 0.36), transparent 8px, transparent 108px, rgba(201, 154, 46, 0.36)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='116' height='128' viewBox='0 0 116 128'%3E%3Cg fill='none' stroke='%23d3a312' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M58 20 C48 31 48 43 58 53 C68 43 68 31 58 20 Z'/%3E%3Cpath d='M58 31 C53 39 53 46 58 54 C63 46 63 39 58 31 Z'/%3E%3Cpath d='M42 38 C29 40 21 49 19 63 C33 61 41 52 42 38 Z'/%3E%3Cpath d='M74 38 C87 40 95 49 97 63 C83 61 75 52 74 38 Z'/%3E%3Cpath d='M36 60 C28 66 26 76 32 86 C42 80 44 69 36 60 Z'/%3E%3Cpath d='M80 60 C88 66 90 76 84 86 C74 80 72 69 80 60 Z'/%3E%3Cpath d='M58 55 C49 66 49 78 58 90 C67 78 67 66 58 55 Z'/%3E%3Cpath d='M28 91 C37 100 49 103 58 94 C67 103 79 100 88 91'/%3E%3Cpath d='M39 98 C43 110 54 113 58 101 C62 113 73 110 77 98'/%3E%3Cpath d='M50 105 C49 113 53 118 58 119 C63 118 67 113 66 105'/%3E%3Cpath d='M31 77 C20 78 14 84 13 94 C24 94 31 88 31 77 Z'/%3E%3Cpath d='M85 77 C96 78 102 84 103 94 C92 94 85 88 85 77 Z'/%3E%3Ccircle cx='58' cy='94' r='4' fill='%23d3a312' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='116' height='128' viewBox='0 0 116 128'%3E%3Cg fill='none' stroke='%23d3a312' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M58 20 C48 31 48 43 58 53 C68 43 68 31 58 20 Z'/%3E%3Cpath d='M58 31 C53 39 53 46 58 54 C63 46 63 39 58 31 Z'/%3E%3Cpath d='M42 38 C29 40 21 49 19 63 C33 61 41 52 42 38 Z'/%3E%3Cpath d='M74 38 C87 40 95 49 97 63 C83 61 75 52 74 38 Z'/%3E%3Cpath d='M36 60 C28 66 26 76 32 86 C42 80 44 69 36 60 Z'/%3E%3Cpath d='M80 60 C88 66 90 76 84 86 C74 80 72 69 80 60 Z'/%3E%3Cpath d='M58 55 C49 66 49 78 58 90 C67 78 67 66 58 55 Z'/%3E%3Cpath d='M28 91 C37 100 49 103 58 94 C67 103 79 100 88 91'/%3E%3Cpath d='M39 98 C43 110 54 113 58 101 C62 113 73 110 77 98'/%3E%3Cpath d='M50 105 C49 113 53 118 58 119 C63 118 67 113 66 105'/%3E%3Cpath d='M31 77 C20 78 14 84 13 94 C24 94 31 88 31 77 Z'/%3E%3Cpath d='M85 77 C96 78 102 84 103 94 C92 94 85 88 85 77 Z'/%3E%3Ccircle cx='58' cy='94' r='4' fill='%23d3a312' stroke='none'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 116px 128px;
   background-position: center top;
   background-repeat: repeat-y;
-}
-
-.kerala-border::before {
-  content: "";
-  position: absolute;
-  inset: 0 18px;
-  background:
-    radial-gradient(circle at 50% 18%, rgba(211, 163, 18, 0.82) 0 3px, transparent 4px),
-    radial-gradient(circle at 50% 82%, rgba(211, 163, 18, 0.82) 0 3px, transparent 4px);
-  background-size: 58px 64px;
-  opacity: 0.42;
 }
 
 .kerala-border-left {
