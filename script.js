@@ -2,6 +2,8 @@ const introScreen = document.querySelector("#introScreen");
 const invitation = document.querySelector("#invitation");
 const openInvite = document.querySelector("#openInvite");
 const flowerRain = document.querySelector(".flower-rain");
+const pageLoader = document.querySelector("#pageLoader");
+const heroImage = document.querySelector(".hero-photo img");
 const countdownCards = {
   days: document.querySelector("#days").closest("div"),
   hours: document.querySelector("#hours").closest("div"),
@@ -44,6 +46,38 @@ function createFlowers() {
     flower.style.setProperty("--flower-scale", `${0.78 + (index % 4) * 0.1}`);
     flowerRain.appendChild(flower);
   }
+}
+
+function hidePageLoader() {
+  if (!pageLoader) {
+    return;
+  }
+
+  pageLoader.classList.add("is-hidden");
+  document.body.classList.remove("is-loading");
+
+  window.setTimeout(() => {
+    pageLoader.setAttribute("hidden", "");
+  }, 450);
+}
+
+function waitForHeroImage() {
+  if (!heroImage || heroImage.complete) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    heroImage.addEventListener("load", resolve, { once: true });
+    heroImage.addEventListener("error", resolve, { once: true });
+  });
+}
+
+function waitForFonts() {
+  if (!document.fonts || typeof document.fonts.ready?.then !== "function") {
+    return Promise.resolve();
+  }
+
+  return document.fonts.ready.catch(() => undefined);
 }
 
 function revealInvitation() {
@@ -145,3 +179,8 @@ document.querySelectorAll("[data-location]").forEach((button) => {
 createFlowers();
 updateCountdown();
 window.setInterval(updateCountdown, 1000);
+
+window.addEventListener("load", async () => {
+  await Promise.all([waitForFonts(), waitForHeroImage()]);
+  hidePageLoader();
+});
