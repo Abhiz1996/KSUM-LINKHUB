@@ -707,8 +707,12 @@ button {
 
   .hero-photo,
   .hero-photo img {
-    min-height: 42svh;
-    height: 42svh;
+    min-height: 48svh;
+    height: 48svh;
+  }
+
+  .hero-photo img {
+    object-position: center top;
   }
 
   .hero-panel {
@@ -755,6 +759,16 @@ button {
 }
 
 @media (max-width: 520px) {
+  .hero-photo,
+  .hero-photo img {
+    min-height: 44svh;
+    height: 44svh;
+  }
+
+  .hero-photo img {
+    object-position: center top;
+  }
+
   .envelope {
     height: 282px;
   }
