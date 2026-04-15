@@ -707,11 +707,20 @@ button {
 
   .hero-photo,
   .hero-photo img {
-    min-height: 48svh;
-    height: 48svh;
+    min-height: auto;
+    height: auto;
+  }
+
+  .hero-photo {
+    display: grid;
+    place-items: start center;
+    background: rgba(251, 251, 248, 0.95);
   }
 
   .hero-photo img {
+    width: 100%;
+    max-height: none;
+    object-fit: contain;
     object-position: center top;
   }
 
@@ -761,11 +770,13 @@ button {
 @media (max-width: 520px) {
   .hero-photo,
   .hero-photo img {
-    min-height: 44svh;
-    height: 44svh;
+    min-height: auto;
+    height: auto;
   }
 
   .hero-photo img {
+    width: 100%;
+    object-fit: contain;
     object-position: center top;
   }
 
