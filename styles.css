@@ -361,20 +361,6 @@ button {
   max-width: 680px;
 }
 
-.icon-badge {
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 20px;
-  border-radius: 8px;
-  background: var(--teal);
-  color: var(--brass);
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 1.7rem;
-  font-weight: 700;
-}
-
 .detail-card h3,
 .countdown-panel h3 {
   margin: 0 0 22px;
