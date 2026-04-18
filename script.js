@@ -90,44 +90,24 @@ function revealInvitation() {
   }, 900);
 }
 
-function formatDateForCalendar(date) {
+function formatGoogleCalendarDate(date) {
   return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 
-function escapeCalendarText(text) {
-  return text.replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\\;").replace(/\n/g, "\\n");
-}
-
-function makeCalendar(eventData) {
-  return [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Wedding Invitation//EN",
-    "BEGIN:VEVENT",
-    `DTSTART:${formatDateForCalendar(eventData.start)}`,
-    `DTEND:${formatDateForCalendar(eventData.end)}`,
-    `SUMMARY:${escapeCalendarText(eventData.title)}`,
-    `DESCRIPTION:${escapeCalendarText(eventData.description)}`,
-    `LOCATION:${escapeCalendarText(eventData.location)}`,
-    "STATUS:CONFIRMED",
-    "END:VEVENT",
-    "END:VCALENDAR"
-  ].join("\r\n");
-}
-
-function downloadCalendar(eventName) {
+function openGoogleCalendar(eventName) {
   const eventData = events[eventName];
-  const calendar = makeCalendar(eventData);
-  const blob = new Blob([calendar], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const url = new URL("https://calendar.google.com/calendar/render");
 
-  link.href = url;
-  link.download = eventData.file;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+  url.searchParams.set("action", "TEMPLATE");
+  url.searchParams.set("text", eventData.title);
+  url.searchParams.set("details", eventData.description);
+  url.searchParams.set("location", eventData.location);
+  url.searchParams.set(
+    "dates",
+    `${formatGoogleCalendarDate(eventData.start)}/${formatGoogleCalendarDate(eventData.end)}`
+  );
+
+  window.open(url.toString(), "_blank", "noopener,noreferrer");
 }
 
 function openLocation(query) {
@@ -169,7 +149,7 @@ function updateCountdown() {
 openInvite.addEventListener("click", revealInvitation);
 
 document.querySelectorAll("[data-calendar]").forEach((button) => {
-  button.addEventListener("click", () => downloadCalendar(button.dataset.calendar));
+  button.addEventListener("click", () => openGoogleCalendar(button.dataset.calendar));
 });
 
 document.querySelectorAll("[data-location]").forEach((button) => {

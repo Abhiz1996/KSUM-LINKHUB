@@ -709,7 +709,7 @@ a {
   }
 
   .hero-panel {
-    min-height: 58svh;
+    min-height: 46svh;
     text-align: center;
     justify-items: center;
   }
@@ -789,11 +789,12 @@ a {
   }
 
   .hero-panel {
-    padding: 30px 22px 44px;
+    min-height: 42svh;
+    padding: 26px 22px 28px;
   }
 
   .section-block {
-    padding-top: 56px;
+    padding-top: 34px;
   }
 
   .countdown {
