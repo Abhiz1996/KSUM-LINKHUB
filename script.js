@@ -158,19 +158,29 @@ function triggerCountdownCelebration() {
   countdownFireworks.replaceChildren();
 
   const bursts = [
-    { x: "14%", y: "26%" },
-    { x: "31%", y: "68%" },
-    { x: "50%", y: "18%" },
-    { x: "66%", y: "60%" },
-    { x: "83%", y: "30%" }
+    { x: "12%", y: "24%" },
+    { x: "26%", y: "64%" },
+    { x: "43%", y: "22%" },
+    { x: "57%", y: "70%" },
+    { x: "73%", y: "28%" },
+    { x: "86%", y: "54%" }
   ];
+  const sparkPalette = ["#ffd663", "#ff9a7c", "#f7e7a5", "#7fb8c8", "#f4b169", "#e87e6b"];
 
   bursts.forEach((position, index) => {
     const burst = document.createElement("span");
     burst.className = "firework-burst";
     burst.style.setProperty("--x", position.x);
     burst.style.setProperty("--y", position.y);
-    burst.style.animationDelay = `${index * 100}ms`;
+
+    for (let sparkIndex = 0; sparkIndex < 12; sparkIndex += 1) {
+      const spark = document.createElement("i");
+      spark.style.setProperty("--angle", `${sparkIndex * 30}deg`);
+      spark.style.setProperty("--spark-color", sparkPalette[(index + sparkIndex) % sparkPalette.length]);
+      spark.style.animationDelay = `${index * 160 + sparkIndex * 18}ms`;
+      burst.appendChild(spark);
+    }
+
     countdownFireworks.appendChild(burst);
   });
 
@@ -183,7 +193,7 @@ function triggerCountdownCelebration() {
     countdownFireworks.classList.remove("is-active");
     countdownPanel.classList.remove("is-celebrating");
     countdownFireworks.replaceChildren();
-  }, 1400);
+  }, 2600);
 }
 
 function watchCountdownCelebration() {
