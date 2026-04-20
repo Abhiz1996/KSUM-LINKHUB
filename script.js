@@ -1,246 +1,480 @@
-const introScreen = document.querySelector("#introScreen");
-const invitation = document.querySelector("#invitation");
-const openInvite = document.querySelector("#openInvite");
-const flowerRain = document.querySelector(".flower-rain");
-const pageLoader = document.querySelector("#pageLoader");
-const heroImage = document.querySelector(".hero-photo img");
-const countdownPanel = document.querySelector("#countdownPanel");
-const countdownFireworks = document.querySelector("#countdownFireworks");
-const countdownCards = {
-  days: document.querySelector("#days").closest("div"),
-  hours: document.querySelector("#hours").closest("div"),
-  minutes: document.querySelector("#minutes").closest("div"),
-  seconds: document.querySelector("#seconds").closest("div")
-};
-const countdownValues = {};
-let hasPlayedCountdownCelebration = false;
-
-const ceremonyStart = new Date("2026-05-25T11:56:00+05:30");
-const ceremonyEnd = new Date("2026-05-25T12:46:00+05:30");
-const receptionStart = new Date("2026-05-28T17:30:00+05:30");
-const receptionEnd = new Date("2026-05-28T21:30:00+05:30");
-
-const events = {
-  ceremony: {
-    title: "Wedding Ceremony - Ananthu & Anagha",
-    description: "Join us for the wedding ceremony of Ananthu and Anagha. Muhurtham: 11:56 am - 12:46 pm",
-    location: "Qatar Auditorium, Thirunavaya, Malappuram",
-    start: ceremonyStart,
-    end: ceremonyEnd,
-    file: "wedding-ceremony.ics"
-  },
-  reception: {
-    title: "Bride Groom Reception - Ananthu & Anagha",
-    description: "Join us for the bride groom reception of Ananthu and Anagha.",
-    location: "Comet Hall, Al-Saj, Kazhakkoottam, Thiruvananthapuram",
-    start: receptionStart,
-    end: receptionEnd,
-    file: "wedding-reception.ics"
-  }
+const APP_CONFIG = {
+  submissionEndpoint: "",
+  companyName: "Your Company",
+  timezone: "Asia/Kolkata"
 };
 
-function createFlowers() {
-  for (let index = 0; index < 14; index += 1) {
-    const flower = document.createElement("span");
-    flower.className = index % 3 === 0 ? "falling-flower golden-flower" : "falling-flower jasmine-flower";
-    flower.style.left = `${(index + 1) * 7}%`;
-    flower.style.animationDuration = `${12 + index * 1.2}s`;
-    flower.style.animationDelay = `${index * -1.4}s`;
-    flower.style.setProperty("--flower-scale", `${0.78 + (index % 4) * 0.1}`);
-    flowerRain.appendChild(flower);
-  }
+const form = document.querySelector("#mediaRequestForm");
+const summarySection = document.querySelector("#summarySection");
+const summaryCard = document.querySelector("#summaryCard");
+const printSummaryButtons = Array.from(document.querySelectorAll(".print-summary-button"));
+const statusMessages = Array.from(document.querySelectorAll(".status-message"));
+
+const categoryInputs = Array.from(document.querySelectorAll('input[name="category"]'));
+const socialTypeInputs = Array.from(document.querySelectorAll('input[name="socialType"]'));
+const prSection = document.querySelector('[data-branch="pr"]');
+const achievementsSection = document.querySelector('[data-branch="achievements"]');
+const socialTypeSections = Array.from(document.querySelectorAll("[data-social-branch]"));
+const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
+const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
+
+let currentStep = "intro";
+
+function selectedValue(name) {
+  return form.querySelector(`input[name="${name}"]:checked`)?.value || "";
 }
 
-function hidePageLoader() {
-  if (!pageLoader) {
-    return;
-  }
-
-  pageLoader.classList.add("is-hidden");
-  document.body.classList.remove("is-loading");
-
-  window.setTimeout(() => {
-    pageLoader.setAttribute("hidden", "");
-  }, 450);
-}
-
-function waitForHeroImage() {
-  if (!heroImage || heroImage.complete) {
-    return Promise.resolve();
-  }
-
-  return new Promise((resolve) => {
-    heroImage.addEventListener("load", resolve, { once: true });
-    heroImage.addEventListener("error", resolve, { once: true });
+function setStatus(message, isError = false) {
+  statusMessages.forEach((node) => {
+    node.textContent = message;
+    node.style.color = isError ? "#b2462a" : "#0a5d61";
   });
 }
 
-function waitForFonts() {
-  if (!document.fonts || typeof document.fonts.ready?.then !== "function") {
-    return Promise.resolve();
-  }
-
-  return document.fonts.ready.catch(() => undefined);
+function updateChoiceCards() {
+  document.querySelectorAll(".choice-card").forEach((card) => {
+    const input = card.querySelector("input");
+    card.classList.toggle("is-selected", Boolean(input?.checked));
+  });
 }
 
-function revealInvitation() {
-  introScreen.classList.add("is-opening");
-  introScreen.classList.add("is-open");
-  invitation.classList.add("is-visible");
-  invitation.setAttribute("aria-hidden", "false");
-  window.setTimeout(() => {
-    introScreen.setAttribute("hidden", "");
-  }, 900);
+function setRequiredByCategory(activeCategory) {
+  form.querySelectorAll("[data-category-required]").forEach((field) => {
+    field.required = field.dataset.categoryRequired === activeCategory;
+  });
 }
 
-function formatGoogleCalendarDate(date) {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+function setRequiredBySocialType(activeSocialType) {
+  form.querySelectorAll("[data-conditional]").forEach((field) => {
+    field.required = field.dataset.conditional === activeSocialType;
+  });
 }
 
-function openGoogleCalendar(eventName) {
-  const eventData = events[eventName];
-  const url = new URL("https://calendar.google.com/calendar/render");
-
-  url.searchParams.set("action", "TEMPLATE");
-  url.searchParams.set("text", eventData.title);
-  url.searchParams.set("details", eventData.description);
-  url.searchParams.set("location", eventData.location);
-  url.searchParams.set(
-    "dates",
-    `${formatGoogleCalendarDate(eventData.start)}/${formatGoogleCalendarDate(eventData.end)}`
-  );
-
-  window.open(url.toString(), "_blank", "noopener,noreferrer");
-}
-
-function openLocation(query) {
-  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-
-function setCountdownValue(unit, value) {
-  const paddedValue = String(value).padStart(2, "0");
-  const element = document.querySelector(`#${unit}`);
-  const card = countdownCards[unit];
-
-  if (countdownValues[unit] === paddedValue) {
+function clearHiddenSectionFields(section) {
+  if (!section) {
     return;
   }
 
-  countdownValues[unit] = paddedValue;
-  element.textContent = paddedValue;
-  card.classList.remove("is-flipping");
-  void card.offsetWidth;
-  card.classList.add("is-flipping");
-}
-
-function updateCountdown() {
-  const now = new Date();
-  const remaining = Math.max(ceremonyStart.getTime() - now.getTime(), 0);
-  const totalSeconds = Math.floor(remaining / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  setCountdownValue("days", days);
-  setCountdownValue("hours", hours);
-  setCountdownValue("minutes", minutes);
-  setCountdownValue("seconds", seconds);
-}
-
-function triggerCountdownCelebration() {
-  if (!countdownPanel || !countdownFireworks || hasPlayedCountdownCelebration) {
-    return;
-  }
-
-  hasPlayedCountdownCelebration = true;
-  countdownFireworks.replaceChildren();
-
-  const bursts = [
-    { x: "12%", y: "24%" },
-    { x: "26%", y: "64%" },
-    { x: "43%", y: "22%" },
-    { x: "57%", y: "70%" },
-    { x: "73%", y: "28%" },
-    { x: "86%", y: "54%" }
-  ];
-  const sparkPalette = ["#ffd663", "#ff9a7c", "#f7e7a5", "#7fb8c8", "#f4b169", "#e87e6b"];
-
-  bursts.forEach((position, index) => {
-    const burst = document.createElement("span");
-    burst.className = "firework-burst";
-    burst.style.setProperty("--x", position.x);
-    burst.style.setProperty("--y", position.y);
-
-    for (let sparkIndex = 0; sparkIndex < 12; sparkIndex += 1) {
-      const spark = document.createElement("i");
-      spark.style.setProperty("--angle", `${sparkIndex * 30}deg`);
-      spark.style.setProperty("--spark-color", sparkPalette[(index + sparkIndex) % sparkPalette.length]);
-      spark.style.animationDelay = `${index * 160 + sparkIndex * 18}ms`;
-      burst.appendChild(spark);
+  section.querySelectorAll("input, textarea, select").forEach((field) => {
+    if (field.type === "radio" || field.type === "checkbox") {
+      field.checked = false;
+      return;
     }
 
-    countdownFireworks.appendChild(burst);
+    field.value = "";
   });
-
-  countdownPanel.classList.remove("is-celebrating");
-  void countdownPanel.offsetWidth;
-  countdownPanel.classList.add("is-celebrating");
-  countdownFireworks.classList.add("is-active");
-
-  window.setTimeout(() => {
-    countdownFireworks.classList.remove("is-active");
-    countdownPanel.classList.remove("is-celebrating");
-    countdownFireworks.replaceChildren();
-  }, 2600);
 }
 
-function watchCountdownCelebration() {
-  if (!countdownPanel) {
+function showStep(stepName) {
+  currentStep = stepName;
+  stepPanels.forEach((panel) => {
+    panel.classList.toggle("hidden", panel.dataset.stepPanel !== stepName);
+  });
+  updateProgress(stepName);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateProgress(stepName) {
+  const order = ["intro", "social-type", "details", "summary"];
+  const mappedStep = stepName === "social-details" || stepName === "pr" || stepName === "achievements"
+    ? "details"
+    : stepName;
+  const activeIndex = order.indexOf(mappedStep);
+
+  progressSteps.forEach((node) => {
+    const nodeIndex = order.indexOf(node.dataset.progressStep);
+    node.classList.toggle("is-active", nodeIndex === activeIndex);
+    node.classList.toggle("is-complete", nodeIndex < activeIndex);
+  });
+}
+
+function toggleCategoryBranches() {
+  const category = selectedValue("category");
+  const isSocial = category === "Social Media";
+  const isPr = category === "PR";
+  const isAchievements = category === "Achievements";
+
+  prSection.classList.toggle("hidden", !isPr);
+  achievementsSection.classList.toggle("hidden", !isAchievements);
+
+  if (!isSocial) {
+    socialTypeInputs.forEach((input) => {
+      input.checked = false;
+    });
+    socialTypeSections.forEach((section) => {
+      section.classList.add("hidden");
+      clearHiddenSectionFields(section);
+    });
+  }
+
+  if (!isPr) {
+    clearHiddenSectionFields(prSection);
+  }
+
+  if (!isAchievements) {
+    clearHiddenSectionFields(achievementsSection);
+  }
+
+  setRequiredByCategory(category);
+  setRequiredBySocialType(selectedValue("socialType"));
+  updateChoiceCards();
+}
+
+function toggleSocialTypeBranches() {
+  const socialType = selectedValue("socialType");
+
+  socialTypeSections.forEach((section) => {
+    const isActive = section.dataset.socialBranch === socialType;
+    section.classList.toggle("hidden", !isActive);
+
+    if (!isActive) {
+      clearHiddenSectionFields(section);
+    }
+  });
+
+  setRequiredBySocialType(socialType);
+  updateChoiceCards();
+}
+
+function fieldsAreValid(selectors) {
+  return selectors.every((selector) => {
+    const field = form.querySelector(selector);
+    return field?.reportValidity();
+  });
+}
+
+function goForwardFromIntro() {
+  const introValid = fieldsAreValid([
+    'input[name="employeeName"]',
+    'select[name="department"]'
+  ]);
+
+  if (!introValid) {
     return;
   }
 
-  if (!("IntersectionObserver" in window)) {
-    triggerCountdownCelebration();
+  if (!selectedValue("category")) {
+    form.querySelector('input[name="category"]').reportValidity();
     return;
   }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const entry = entries[0];
+  if (selectedValue("category") === "Social Media") {
+    showStep("social-type");
+    return;
+  }
 
-      if (!entry?.isIntersecting || entry.intersectionRatio < 0.45) {
-        return;
-      }
+  if (selectedValue("category") === "PR") {
+    showStep("pr");
+    return;
+  }
 
-      triggerCountdownCelebration();
-      observer.disconnect();
-    },
+  if (selectedValue("category") === "Achievements") {
+    showStep("achievements");
+  }
+}
+
+function goForwardFromSocialType() {
+  if (!selectedValue("socialType")) {
+    form.querySelector('input[name="socialType"]').reportValidity();
+    return;
+  }
+
+  showStep("social-details");
+}
+
+function formatDateValue(value) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "long",
+    ...(value.includes("T") ? { timeStyle: "short", timeZone: APP_CONFIG.timezone } : {})
+  }).format(date);
+}
+
+function isLikelyUrl(value) {
+  return /^https?:\/\//i.test(value);
+}
+
+function sanitizeText(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getSummarySections(payload) {
+  const sections = [
     {
-      threshold: [0.45, 0.65]
+      title: "Requester Information",
+      rows: [
+        ["Name", payload.employeeName],
+        ["Department", payload.department],
+        ["Category", payload.category]
+      ]
     }
-  );
+  ];
 
-  observer.observe(countdownPanel);
+  if (payload.category === "Social Media") {
+    const socialTitle = payload.socialType || "Social Media Request";
+    let rows = [["Social Media Type", payload.socialType]];
+
+    if (payload.socialType === "New Creative") {
+      rows = rows.concat([
+        ["Name of event", payload.newCreativeEventName],
+        ["Date of event", formatDateValue(payload.newCreativeEventDate)],
+        ["Time", payload.newCreativeEventTime || "Not provided"],
+        ["Location", payload.newCreativeLocation],
+        ["Registration Link", payload.newCreativeRegistrationLink],
+        ["Brief description of the event", payload.newCreativeDescription],
+        ["Speaker details", payload.newCreativeSpeakerDetails],
+        ["Drive link to photographs", payload.newCreativePhotoDriveLink],
+        ["LinkedIn Profile", payload.newCreativeLinkedinProfile || "Not provided"],
+        ["Partner institutions and logos", payload.newCreativePartnerInstitutions],
+        ["Tagging links", payload.newCreativeTaggingLinks]
+      ]);
+    }
+
+    if (payload.socialType === "Post Event") {
+      rows = rows.concat([
+        ["Title", payload.postEventTitle],
+        ["Date", formatDateValue(payload.postEventDate)],
+        ["Location", payload.postEventLocation],
+        ["Drive link to photos", payload.postEventPhotoDriveLink],
+        ["Tagging details", payload.postEventTaggingDetails]
+      ]);
+    }
+
+    if (payload.socialType === "External or Partner Event") {
+      rows = rows.concat([
+        ["Name of event", payload.externalEventName],
+        ["Partner organisation", payload.externalPartnerOrganisation],
+        ["Registration Link", payload.externalRegistrationLink],
+        ["Date", formatDateValue(payload.externalEventDate)],
+        ["Location", payload.externalEventLocation],
+        ["Creative to be published", payload.externalCreativeToBePublished],
+        ["Tagging links", payload.externalTaggingLinks]
+      ]);
+    }
+
+    sections.push({ title: socialTitle, rows });
+  }
+
+  if (payload.category === "Achievements") {
+    sections.push({
+      title: "Achievement Details",
+      rows: [
+        ["Startups / Startup mission", payload.achievementStartupName],
+        ["Brief description", payload.achievementDescription],
+        ["Photos if any", payload.achievementPhotos],
+        ["Logos to be included", payload.achievementLogos],
+        ["Tagging links", payload.achievementTaggingLinks],
+        ["Contact details of startup", payload.achievementContactDetails]
+      ]
+    });
+  }
+
+  if (payload.category === "PR") {
+    sections.push({
+      title: "Press Release Details",
+      rows: [
+        ["What is the event or announcement?", payload.prEventAnnouncement],
+        ["Who is involved?", payload.prWhoIsInvolved],
+        ["When will / did the event take place?", formatDateValue(payload.prWhen)],
+        ["Where is the event being held?", payload.prWhere],
+        ["Why is this event or announcement significant?", payload.prWhySignificant],
+        ["Key highlights or major announcements", payload.prKeyHighlights],
+        ["Notable speakers or guests", payload.prNotableSpeakers],
+        ["Background or context", payload.prBackgroundContext],
+        ["Quotes from key individuals", payload.prQuotes],
+        ["Testimonials or feedback from attendees", payload.prTestimonials],
+        ["Follow-up events or next steps", payload.prFollowUpEvents],
+        ["Where can readers find more information?", payload.prMoreInformation],
+        ["Media uploads / links", payload.prMediaAssets],
+        ["Captions for the visual content", payload.prCaptions],
+        ["Contact for review and POC", payload.prContactPerson]
+      ]
+    });
+  }
+
+  return sections;
 }
 
-openInvite.addEventListener("click", revealInvitation);
+function buildSummaryMarkup(payload) {
+  const sections = getSummarySections(payload);
+  const submittedAt = new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: APP_CONFIG.timezone
+  }).format(new Date(payload.submittedAt));
 
-document.querySelectorAll("[data-calendar]").forEach((button) => {
-  button.addEventListener("click", () => openGoogleCalendar(button.dataset.calendar));
+  const blocks = sections
+    .map((section) => {
+      const rows = section.rows
+        .filter(([, value]) => value && value !== "Not provided")
+        .map(([label, value]) => {
+          const safeLabel = sanitizeText(label);
+          const displayValue = sanitizeText(value);
+          const renderedValue = isLikelyUrl(value)
+            ? `<a href="${displayValue}" target="_blank" rel="noopener noreferrer">${displayValue}</a>`
+            : `<span>${displayValue.replaceAll("\n", "<br>")}</span>`;
+
+          return `
+            <div class="summary-row">
+              <strong>${safeLabel}</strong>
+              ${renderedValue}
+            </div>
+          `;
+        })
+        .join("");
+
+      return `
+        <section class="summary-block">
+          <h4>${sanitizeText(section.title)}</h4>
+          <div class="summary-list">${rows}</div>
+        </section>
+      `;
+    })
+    .join("");
+
+  return `
+    <header class="summary-header">
+      <div>
+        <p class="eyebrow">Questionnaire Response</p>
+        <h3>${sanitizeText(APP_CONFIG.companyName)} Media Box Submission</h3>
+      </div>
+      <div class="summary-meta">
+        <p><strong>Submitted:</strong> ${sanitizeText(submittedAt)}</p>
+        <p><strong>Department:</strong> ${sanitizeText(payload.department)}</p>
+      </div>
+    </header>
+    <div class="summary-grid">${blocks}</div>
+  `;
+}
+
+function formDataToObject() {
+  const data = new FormData(form);
+  const payload = Object.fromEntries(data.entries());
+  payload.submittedAt = new Date().toISOString();
+  return payload;
+}
+
+function validateBusinessRules(payload) {
+  if (payload.category === "Social Media" && !payload.socialType) {
+    return "Please choose the social media request type.";
+  }
+
+  if (payload.socialType === "New Creative" && payload.newCreativeEventDate) {
+    const eventDate = new Date(payload.newCreativeEventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const differenceInDays = Math.ceil((eventDate.getTime() - today.getTime()) / 86400000);
+
+    if (differenceInDays < 5) {
+      return "New Creative requests should ideally be submitted at least 5 days before the event date.";
+    }
+  }
+
+  return "";
+}
+
+async function submitToEndpoint(payload) {
+  if (!APP_CONFIG.submissionEndpoint) {
+    return { mode: "preview-only" };
+  }
+
+  const response = await fetch(APP_CONFIG.submissionEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Submission failed with status ${response.status}.`);
+  }
+
+  return response.json().catch(() => ({ mode: "connected" }));
+}
+
+categoryInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    toggleCategoryBranches();
+    if (currentStep !== "intro") {
+      showStep("intro");
+    }
+  });
 });
 
-document.querySelectorAll("[data-location]").forEach((button) => {
-  button.addEventListener("click", () => openLocation(button.dataset.location));
+socialTypeInputs.forEach((input) => {
+  input.addEventListener("change", toggleSocialTypeBranches);
 });
 
-createFlowers();
-updateCountdown();
-window.setInterval(updateCountdown, 1000);
-watchCountdownCelebration();
+document.querySelector("#introNextButton").addEventListener("click", goForwardFromIntro);
+document.querySelector("#socialTypeNextButton").addEventListener("click", goForwardFromSocialType);
 
-window.addEventListener("load", async () => {
-  await Promise.all([waitForFonts(), waitForHeroImage()]);
-  hidePageLoader();
+document.querySelectorAll("[data-go-step]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showStep(button.dataset.goStep);
+  });
 });
+
+printSummaryButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    window.print();
+  });
+});
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  setStatus("");
+
+  const payload = formDataToObject();
+  const businessRuleError = validateBusinessRules(payload);
+
+  if (!form.reportValidity()) {
+    setStatus("Please complete the required fields before submitting.", true);
+    return;
+  }
+
+  if (businessRuleError) {
+    setStatus(businessRuleError, true);
+    return;
+  }
+
+  summaryCard.innerHTML = buildSummaryMarkup(payload);
+  summarySection.classList.remove("hidden");
+  updateProgress("summary");
+  printSummaryButtons.forEach((button) => {
+    button.disabled = false;
+  });
+
+  try {
+    const result = await submitToEndpoint(payload);
+
+    if (result?.mode === "preview-only") {
+      setStatus("Summary generated.");
+    } else {
+      setStatus("Submission sent successfully.");
+    }
+  } catch (error) {
+    setStatus(`${error.message} The summary is still available below for printing or saving as PDF.`, true);
+  }
+
+  summarySection.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+toggleCategoryBranches();
+toggleSocialTypeBranches();
+updateChoiceCards();
+showStep("intro");

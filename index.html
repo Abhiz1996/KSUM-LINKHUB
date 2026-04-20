@@ -3,131 +3,415 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Ananthu weds Anagha">
-    <title>Ananthu and Anagha</title>
+    <meta
+      name="description"
+      content="Media box request form for collecting social media, press release, and achievement requests with branching questionnaire support."
+    >
+    <title>Media Box Request Hub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Prata&display=swap"
+      rel="stylesheet"
+    >
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body class="is-loading">
-    <div class="page-loader" id="pageLoader" aria-hidden="true">
-      <div class="page-loader-mark">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <p>Preparing the invitation</p>
-    </div>
-    <div class="flower-rain" aria-hidden="true"></div>
-    <div class="kerala-border kerala-border-left" aria-hidden="true"></div>
-    <div class="kerala-border kerala-border-right" aria-hidden="true"></div>
+  <body>
+    <div class="page-glow" aria-hidden="true"></div>
 
-    <main class="site-shell">
-      <section class="intro-screen" id="introScreen" aria-label="Open invitation">
-        <div class="envelope" role="presentation">
-          <div class="envelope-back"></div>
-          <div class="envelope-card">
-            <p>Wedding Invitation</p>
-            <h1>Ananthu</h1>
-            <span>&amp;</span>
-            <h1>Anagha</h1>
-          </div>
-          <div class="envelope-front"></div>
-          <div class="envelope-flap"></div>
-        </div>
-        <p class="intro-copy">Tap below to view your invitation</p>
-        <button class="primary-action" id="openInvite" type="button">Open Invitation</button>
+    <main class="page-shell">
+      <section class="hero">
+        <h1>Media Box Request Hub</h1>
       </section>
 
-      <div class="invitation" id="invitation" aria-hidden="true">
-        <section class="hero-section">
-          <div class="hero-panel">
-            <div class="hero-ornament hero-ornament-left" aria-hidden="true"></div>
-            <div class="hero-ornament hero-ornament-right" aria-hidden="true"></div>
-            <div class="hero-panel-content">
-              <p class="eyebrow">Sacred Union</p>
-              <p class="lead">Join us as we celebrate love, laughter, and the beginning of forever</p>
-              <div class="couple-names">
-                <h2>Ananthu</h2>
-                <span>&amp;</span>
-                <h2>Anagha</h2>
+      <section class="form-shell">
+        <div class="progress-strip" aria-label="Form progress">
+          <div class="progress-step is-active" data-progress-step="intro">1</div>
+          <div class="progress-step" data-progress-step="social-type">2</div>
+          <div class="progress-step" data-progress-step="details">3</div>
+          <div class="progress-step" data-progress-step="summary">4</div>
+        </div>
+
+        <form id="mediaRequestForm" class="media-form" novalidate>
+          <div class="step-panel" data-step-panel="intro">
+            <section class="form-section">
+              <div class="section-title">
+                <span>Q1</span>
+                <h3>Basic Details</h3>
               </div>
-            </div>
-          </div>
-        </section>
 
-        <section class="section-block ceremony">
-          <div class="section-divider" aria-hidden="true">
-            <span></span>
-            <i></i>
-            <span></span>
-          </div>
-          <p class="eyebrow">Wedding Ceremony</p>
-          <h2>Save The Date</h2>
-          <p class="date-pill">25 May 2026</p>
-          <div class="ceremony-actions">
-            <button class="primary-action" type="button" data-calendar="ceremony">Add to Calendar</button>
-          </div>
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Name</span>
+                  <input type="text" name="employeeName" required placeholder="Enter full name">
+                </label>
 
-          <article class="detail-card">
-            <h3>Wedding Details</h3>
-            <p><strong>Date:</strong> Monday, 25 May 2026</p>
-            <p class="highlight">Muhurtham: 11:56 am - 12:46 pm</p>
-            <div class="venue">
-              <p class="eyebrow">Venue</p>
-              <h4>Qatar Auditorium</h4>
-              <p>Thirunavaya, Malappuram</p>
-              <button class="secondary-action venue-location-button" type="button" data-location="Qatar Auditorium, Thirunavaya, Malappuram">View Location</button>
-            </div>
-          </article>
-
-          <div class="countdown-panel" id="countdownPanel">
-            <div class="countdown-fireworks" id="countdownFireworks" aria-hidden="true"></div>
-            <p class="eyebrow">Countdown</p>
-            <h3 class="countdown-title">The celebration begins in</h3>
-            <div class="countdown" id="countdown" aria-live="polite">
-              <div><strong id="days">0</strong><span>Days</span></div>
-              <div><strong id="hours">0</strong><span>Hours</span></div>
-              <div><strong id="minutes">0</strong><span>Minutes</span></div>
-              <div><strong id="seconds">0</strong><span>Seconds</span></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section-block reception">
-          <p class="eyebrow">Bride Groom Reception</p>
-          <h2>Join Us For The Celebration</h2>
-
-          <article class="detail-card">
-            <p><strong>Date:</strong> Thursday, 28 May 2026</p>
-            <p class="highlight">Time: 5:30 pm to 9:30 pm</p>
-            <div class="venue">
-              <p class="eyebrow">Venue</p>
-              <h4>Comet Hall, Al-Saj</h4>
-              <p>Kazhakkoottam, Thiruvananthapuram</p>
-              <div class="action-row">
-                <button class="primary-action" type="button" data-calendar="reception">Add to Calendar</button>
-                <button class="secondary-action" type="button" data-location="Comet Hall, Al-Saj, Kazhakkoottam, Thiruvananthapuram">View Location</button>
+                <label class="field">
+                  <span>Name of Department</span>
+                  <select name="department" required>
+                    <option value="">Select department</option>
+                    <option>Rink</option>
+                    <option>IEDC</option>
+                    <option>Grants</option>
+                    <option>Investment</option>
+                    <option>Coworking</option>
+                    <option>Corporate Relations</option>
+                    <option>Women</option>
+                    <option>Incubation</option>
+                    <option>IT</option>
+                    <option>Infra</option>
+                    <option>HR</option>
+                    <option>Admin</option>
+                    <option>Accounts</option>
+                  </select>
+                </label>
               </div>
+            </section>
+
+            <section class="form-section">
+              <div class="section-title">
+                <span>Q2</span>
+                <h3>Select Category</h3>
+              </div>
+
+              <div class="choice-grid" role="radiogroup" aria-label="Select request category">
+                <label class="choice-card">
+                  <input type="radio" name="category" value="Social Media" required>
+                  <strong>Social Media</strong>
+                  <small>Creative, post-event, external or partner event</small>
+                </label>
+
+                <label class="choice-card">
+                  <input type="radio" name="category" value="PR" required>
+                  <strong>PR</strong>
+                  <small>Press release and communication note</small>
+                </label>
+
+                <label class="choice-card">
+                  <input type="radio" name="category" value="Achievements" required>
+                  <strong>Achievements</strong>
+                  <small>Startup or startup mission achievement highlights</small>
+                </label>
+              </div>
+            </section>
+
+            <div class="step-actions">
+              <button type="button" class="primary-button" id="introNextButton">Next</button>
             </div>
-          </article>
-        </section>
+          </div>
 
-        <section class="section-block rsvp-section">
-          <p class="eyebrow">RSVP</p>
-          <h2>Kindly let us know if you’ll be joining us</h2>
+          <div class="step-panel hidden" data-step-panel="social-type">
+            <section class="form-section" data-branch="social">
+              <div class="section-title">
+                <span>Q3</span>
+                <h3>Social Media Type</h3>
+              </div>
 
-          <article class="detail-card rsvp-card">
-            <p>Please share your response using the RSVP form below</p>
-            <a class="primary-action rsvp-link" href="https://forms.gle/ySF3FnZ63FMnBYPa8" target="_blank" rel="noreferrer">Open RSVP Form</a>
-          </article>
-        </section>
+              <div class="choice-grid" role="radiogroup" aria-label="Select social media type">
+                <label class="choice-card">
+                  <input type="radio" name="socialType" value="New Creative">
+                  <strong>New Creative</strong>
+                  <small>Fresh event creative or promotional post</small>
+                </label>
 
-        <section class="closing-note">
-          <p>With grateful hearts, we cherish your love and support as we begin this journey together. We can’t wait to celebrate with you</p>
-        </section>
-      </div>
+                <label class="choice-card">
+                  <input type="radio" name="socialType" value="Post Event">
+                  <strong>Post Event Poster</strong>
+                  <small>Poster based on completed event coverage</small>
+                </label>
+
+                <label class="choice-card">
+                  <input type="radio" name="socialType" value="External or Partner Event">
+                  <strong>External or Partner Event</strong>
+                  <small>External event promotion or collaboration post</small>
+                </label>
+              </div>
+            </section>
+
+            <div class="step-actions">
+              <button type="button" class="ghost-button" data-go-step="intro">Back</button>
+              <button type="button" class="primary-button" id="socialTypeNextButton">Next</button>
+            </div>
+          </div>
+
+          <div class="step-panel hidden" data-step-panel="social-details">
+            <section class="form-section hidden" data-social-branch="New Creative">
+              <div class="section-title">
+                <span>Q4</span>
+                <h3>New Creative Details</h3>
+              </div>
+
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Name of event</span>
+                  <input type="text" name="newCreativeEventName" data-conditional="New Creative">
+                </label>
+                <label class="field">
+                  <span>Date of event</span>
+                  <input type="date" name="newCreativeEventDate" data-conditional="New Creative">
+                </label>
+                <label class="field">
+                  <span>Time</span>
+                  <input type="time" name="newCreativeEventTime" data-conditional="New Creative">
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input type="text" name="newCreativeLocation" data-conditional="New Creative" placeholder="Venue / city">
+                </label>
+                <label class="field">
+                  <span>Registration Link</span>
+                  <input type="url" name="newCreativeRegistrationLink" data-conditional="New Creative" placeholder="https://">
+                </label>
+                <label class="field">
+                  <span>Speaker details (if any)</span>
+                  <input type="text" name="newCreativeSpeakerDetails" data-conditional="New Creative" placeholder="Speaker names, titles">
+                </label>
+                <label class="field">
+                  <span>Drive link to photographs</span>
+                  <input type="url" name="newCreativePhotoDriveLink" data-conditional="New Creative" placeholder="https://">
+                </label>
+                <label class="field">
+                  <span>LinkedIn Profile (optional)</span>
+                  <input type="url" name="newCreativeLinkedinProfile" placeholder="https://linkedin.com/in/...">
+                </label>
+                <label class="field">
+                  <span>Partner institutions and logos</span>
+                  <input type="text" name="newCreativePartnerInstitutions" data-conditional="New Creative" placeholder="Institutions / logo notes">
+                </label>
+                <label class="field">
+                  <span>Tagging links</span>
+                  <input type="text" name="newCreativeTaggingLinks" data-conditional="New Creative" placeholder="Instagram / LinkedIn / X handles">
+                </label>
+                <label class="field full-width">
+                  <span>Brief description of the event</span>
+                  <textarea name="newCreativeDescription" rows="4" data-conditional="New Creative" placeholder="Share the message or event context"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section hidden" data-social-branch="Post Event">
+              <div class="section-title">
+                <span>Q4</span>
+                <h3>Post-Event Poster Details</h3>
+              </div>
+
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Title</span>
+                  <input type="text" name="postEventTitle" data-conditional="Post Event">
+                </label>
+                <label class="field">
+                  <span>Date</span>
+                  <input type="date" name="postEventDate" data-conditional="Post Event">
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input type="text" name="postEventLocation" data-conditional="Post Event">
+                </label>
+                <label class="field">
+                  <span>Drive link to photos</span>
+                  <input type="url" name="postEventPhotoDriveLink" data-conditional="Post Event" placeholder="https://">
+                </label>
+                <label class="field full-width">
+                  <span>Tagging details</span>
+                  <textarea name="postEventTaggingDetails" rows="3" data-conditional="Post Event" placeholder="Mention accounts or URLs to tag"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section hidden" data-social-branch="External or Partner Event">
+              <div class="section-title">
+                <span>Q4</span>
+                <h3>External or Partner Event Details</h3>
+              </div>
+
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Name of event</span>
+                  <input type="text" name="externalEventName" data-conditional="External or Partner Event">
+                </label>
+                <label class="field">
+                  <span>Partner organisation</span>
+                  <input type="text" name="externalPartnerOrganisation" data-conditional="External or Partner Event">
+                </label>
+                <label class="field">
+                  <span>Registration Link</span>
+                  <input type="url" name="externalRegistrationLink" data-conditional="External or Partner Event" placeholder="https://">
+                </label>
+                <label class="field">
+                  <span>Date</span>
+                  <input type="date" name="externalEventDate" data-conditional="External or Partner Event">
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input type="text" name="externalEventLocation" data-conditional="External or Partner Event">
+                </label>
+                <label class="field">
+                  <span>Creative to be published</span>
+                  <input type="text" name="externalCreativeToBePublished" data-conditional="External or Partner Event" placeholder="Poster, story, reel, carousel">
+                </label>
+                <label class="field full-width">
+                  <span>Tagging links</span>
+                  <textarea name="externalTaggingLinks" rows="3" data-conditional="External or Partner Event" placeholder="Mention accounts or URLs to tag"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section submission-section">
+              <div class="submit-panel">
+                <div class="action-bar">
+                  <button type="button" class="ghost-button" data-go-step="social-type">Back</button>
+                  <button type="submit" class="primary-button">Submit</button>
+                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
+                </div>
+                <p class="status-message" role="status" aria-live="polite"></p>
+              </div>
+            </section>
+          </div>
+
+          <div class="step-panel hidden" data-step-panel="achievements">
+            <section class="form-section" data-branch="achievements">
+              <div class="section-title">
+                <span>Q3</span>
+                <h3>Achievement Details</h3>
+              </div>
+
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Startups / Startup mission</span>
+                  <input type="text" name="achievementStartupName" data-category-required="Achievements">
+                </label>
+                <label class="field">
+                  <span>Photos if any</span>
+                  <input type="url" name="achievementPhotos" data-category-required="Achievements" placeholder="Drive link / image URL">
+                </label>
+                <label class="field">
+                  <span>Logos to be included</span>
+                  <input type="text" name="achievementLogos" data-category-required="Achievements" placeholder="Startup / partner logos">
+                </label>
+                <label class="field">
+                  <span>Tagging links</span>
+                  <input type="text" name="achievementTaggingLinks" data-category-required="Achievements" placeholder="Social handles or profile links">
+                </label>
+                <label class="field">
+                  <span>Contact details of startup</span>
+                  <input type="text" name="achievementContactDetails" data-category-required="Achievements" placeholder="Required for startup achievement">
+                </label>
+                <label class="field full-width">
+                  <span>Brief description</span>
+                  <textarea name="achievementDescription" rows="4" data-category-required="Achievements" placeholder="Describe the achievement and why it matters"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section submission-section">
+              <div class="submit-panel">
+                <div class="action-bar">
+                  <button type="button" class="ghost-button" data-go-step="intro">Back</button>
+                  <button type="submit" class="primary-button">Submit</button>
+                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
+                </div>
+                <p class="status-message" role="status" aria-live="polite"></p>
+              </div>
+            </section>
+          </div>
+
+          <div class="step-panel hidden" data-step-panel="pr">
+            <section class="form-section" data-branch="pr">
+              <div class="section-title">
+                <span>Q3</span>
+                <h3>Press Release Details</h3>
+              </div>
+
+              <div class="field-grid two-col">
+                <label class="field full-width">
+                  <span>What is the event or announcement?</span>
+                  <textarea name="prEventAnnouncement" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Who is involved?</span>
+                  <textarea name="prWhoIsInvolved" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field">
+                  <span>When will / did the event take place?</span>
+                  <input type="datetime-local" name="prWhen" data-category-required="PR">
+                </label>
+                <label class="field">
+                  <span>Where is the event being held?</span>
+                  <input type="text" name="prWhere" data-category-required="PR">
+                </label>
+                <label class="field full-width">
+                  <span>Why is this event or announcement significant?</span>
+                  <textarea name="prWhySignificant" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>What are the key highlights or major announcements?</span>
+                  <textarea name="prKeyHighlights" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Are there any notable speakers or guests?</span>
+                  <textarea name="prNotableSpeakers" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>What is the background or context of the event?</span>
+                  <textarea name="prBackgroundContext" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Are there any quotes from key individuals?</span>
+                  <textarea name="prQuotes" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Do you have any testimonials or feedback from attendees?</span>
+                  <textarea name="prTestimonials" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Are there any follow-up events or next steps?</span>
+                  <textarea name="prFollowUpEvents" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Where can readers find more information?</span>
+                  <textarea name="prMoreInformation" rows="3" data-category-required="PR" placeholder="Websites, social media pages, or contact details"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Upload photos, videos, or other media related to the event</span>
+                  <textarea name="prMediaAssets" rows="3" data-category-required="PR" placeholder="Drive links to photographs, visuals, agendas, posters, videos"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Provide captions for the visual content</span>
+                  <textarea name="prCaptions" rows="3" data-category-required="PR"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Who will be the contact for more information and POC to cross-check the press note?</span>
+                  <textarea name="prContactPerson" rows="3" data-category-required="PR"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section submission-section">
+              <div class="submit-panel">
+                <div class="action-bar">
+                  <button type="button" class="ghost-button" data-go-step="intro">Back</button>
+                  <button type="submit" class="primary-button">Submit</button>
+                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
+                </div>
+                <p class="status-message" role="status" aria-live="polite"></p>
+              </div>
+            </section>
+          </div>
+        </form>
+      </section>
+
+      <section class="summary-shell hidden" id="summarySection">
+        <div class="section-head">
+          <h2>Questionnaire Summary</h2>
+        </div>
+
+        <div class="summary-card" id="summaryCard">
+          <div class="summary-placeholder">
+            Submit the form to generate a clean summary of the answers here.
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="script.js"></script>
