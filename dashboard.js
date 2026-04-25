@@ -16,6 +16,7 @@ const resetFormButton = document.querySelector("#resetFormButton");
 const creativeUpload = document.querySelector("#creativeUpload");
 const creativePreview = document.querySelector("#creativePreview");
 const clearCreativeButton = document.querySelector("#clearCreativeButton");
+const deleteCurrentEventButton = document.querySelector("#deleteCurrentEventButton");
 const adminSearchInput = document.querySelector("#adminSearchInput");
 const eventList = document.querySelector("#eventList");
 const backendMetrics = document.querySelector("#backendMetrics");
@@ -162,6 +163,7 @@ function resetFormState() {
   uploadedCreativeDataUrl = "";
   creativeUpload.value = "";
   formHeading.textContent = "Create event entry";
+  deleteCurrentEventButton.classList.add("hidden");
   formStatus.textContent = "";
   formStatus.classList.remove("is-error");
   renderCreativePreview();
@@ -265,6 +267,7 @@ function renderInventory() {
       uploadedCreativeDataUrl = eventItem.imageDataUrl || "";
       creativeUpload.value = "";
       formHeading.textContent = "Edit event entry";
+      deleteCurrentEventButton.classList.remove("hidden");
       formStatus.textContent = "Editing saved event.";
       formStatus.classList.remove("is-error");
       renderCreativePreview();
@@ -377,6 +380,25 @@ clearCreativeButton.addEventListener("click", () => {
   creativeUpload.value = "";
   eventForm.elements.imageUrl.value = "";
   renderCreativePreview();
+});
+
+deleteCurrentEventButton.addEventListener("click", () => {
+  const currentId = String(eventForm.elements.eventId.value || "").trim();
+  if (!currentId) {
+    return;
+  }
+
+  const eventItem = getEvents().find((entry) => entry.id === currentId);
+  if (!eventItem || !window.confirm(`Delete "${eventItem.title}"?`)) {
+    return;
+  }
+
+  saveEvents(getEvents().filter((entry) => entry.id !== currentId));
+  resetFormState();
+  renderBackendMetrics();
+  renderInventory();
+  formStatus.textContent = "Event deleted.";
+  formStatus.classList.remove("is-error");
 });
 
 resetFormButton.addEventListener("click", resetFormState);
