@@ -10,10 +10,12 @@ const loginForm = document.querySelector("#loginForm");
 const loginStatus = document.querySelector("#loginStatus");
 const logoutButton = document.querySelector("#logoutButton");
 const metricsGrid = document.querySelector("#metricsGrid");
+const overviewBoard = document.querySelector("#overviewBoard");
 const topEvents = document.querySelector("#topEvents");
 const sourceBreakdown = document.querySelector("#sourceBreakdown");
 const dailyTrend = document.querySelector("#dailyTrend");
 const recentClicks = document.querySelector("#recentClicks");
+const eventAnalyticsGrid = document.querySelector("#eventAnalyticsGrid");
 const exportAnalyticsButton = document.querySelector("#exportAnalyticsButton");
 
 function readJsonStorage(key, fallback) {
@@ -106,6 +108,67 @@ function renderMetrics() {
       <p class="kicker">CTR</p>
       <strong>${ctr}%</strong>
       <span class="helper-copy">${uniqueVisitors.size} unique visitors</span>
+    </article>
+  `;
+}
+
+function buildEventPerformanceRows() {
+  const events = getEvents();
+  const analytics = getAnalytics();
+  const clicksByEvent = analytics.clicks.reduce((accumulator, click) => {
+    accumulator[click.eventId] = accumulator[click.eventId] || [];
+    accumulator[click.eventId].push(click);
+    return accumulator;
+  }, {});
+
+  return events.map((eventItem) => {
+    const clicks = clicksByEvent[eventItem.id] || [];
+    const uniqueVisitors = new Set(clicks.map((entry) => entry.visitorId)).size;
+    const latestClick = clicks.length
+      ? clicks.slice().sort((left, right) => new Date(right.timestamp) - new Date(left.timestamp))[0].timestamp
+      : "";
+
+    return {
+      id: eventItem.id,
+      title: eventItem.title,
+      status: eventItem.status,
+      tag: eventItem.tag,
+      venue: eventItem.venue,
+      clicks: clicks.length,
+      uniqueVisitors,
+      latestClick,
+      url: eventItem.url
+    };
+  }).sort((left, right) => right.clicks - left.clicks || left.title.localeCompare(right.title));
+}
+
+function renderOverviewBoard() {
+  const analytics = getAnalytics();
+  const eventRows = buildEventPerformanceRows();
+  const topEvent = eventRows[0];
+  const sourceCounts = analytics.pageViews.reduce((accumulator, entry) => {
+    const label = getSourceLabel(entry.source);
+    accumulator[label] = (accumulator[label] || 0) + 1;
+    return accumulator;
+  }, {});
+  const topSource = Object.entries(sourceCounts).sort((left, right) => right[1] - left[1])[0];
+  const activePerforming = eventRows.filter((row) => row.status === "active" && row.clicks > 0).length;
+
+  overviewBoard.innerHTML = `
+    <article class="overview-card">
+      <strong>${topEvent ? sanitizeText(topEvent.title) : "No data yet"}</strong>
+      <span>Top performing event</span>
+      <small>${topEvent ? `${topEvent.clicks} clicks` : "No click activity yet"}</small>
+    </article>
+    <article class="overview-card">
+      <strong>${topSource ? sanitizeText(topSource[0]) : "Direct"}</strong>
+      <span>Top traffic source</span>
+      <small>${topSource ? `${topSource[1]} visits` : "No source data yet"}</small>
+    </article>
+    <article class="overview-card">
+      <strong>${activePerforming}</strong>
+      <span>Active events with clicks</span>
+      <small>Events generating measurable engagement</small>
     </article>
   `;
 }
@@ -220,12 +283,50 @@ function renderRecentClicks() {
   `).join("");
 }
 
+function renderEventAnalyticsGrid() {
+  const rows = buildEventPerformanceRows();
+
+  if (!rows.length) {
+    eventAnalyticsGrid.innerHTML = '<article class="empty-state"><p class="body-copy">Create events to unlock per-event analytics.</p></article>';
+    return;
+  }
+
+  eventAnalyticsGrid.innerHTML = rows.map((row) => `
+    <article class="event-analytics-card">
+      <div class="event-analytics-head">
+        <div>
+          <strong>${sanitizeText(row.title)}</strong>
+          <span>${sanitizeText(row.status)}${row.tag ? ` · ${sanitizeText(row.tag)}` : ""}</span>
+        </div>
+        <span class="status-pill">${row.clicks} clicks</span>
+      </div>
+      <div class="event-analytics-stats">
+        <div>
+          <strong>${row.uniqueVisitors}</strong>
+          <span>Unique visitors</span>
+        </div>
+        <div>
+          <strong>${sanitizeText(row.venue || "KSUM")}</strong>
+          <span>Venue</span>
+        </div>
+        <div>
+          <strong>${row.latestClick ? sanitizeText(formatDateTime(row.latestClick)) : "No clicks yet"}</strong>
+          <span>Latest click</span>
+        </div>
+      </div>
+      <a class="meta-note" href="${sanitizeText(row.url)}" target="_blank" rel="noopener noreferrer">${sanitizeText(row.url)}</a>
+    </article>
+  `).join("");
+}
+
 function renderAnalytics() {
   renderMetrics();
+  renderOverviewBoard();
   renderTopEvents();
   renderSourceBreakdown();
   renderDailyTrend();
   renderRecentClicks();
+  renderEventAnalyticsGrid();
 }
 
 function exportAnalytics() {
