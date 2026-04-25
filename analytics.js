@@ -24,6 +24,17 @@ function readJsonStorage(key, fallback) {
   }
 }
 
+function getEvents() {
+  return readJsonStorage(STORAGE_KEYS.events, []);
+}
+
+function getAnalytics() {
+  return readJsonStorage(STORAGE_KEYS.analytics, {
+    pageViews: [],
+    clicks: []
+  });
+}
+
 function sanitizeText(text) {
   return String(text || "")
     .replaceAll("&", "&amp;")
@@ -39,17 +50,6 @@ function setSession(isActive) {
 
 function hasSession() {
   return localStorage.getItem(STORAGE_KEYS.session) === "active";
-}
-
-function getEvents() {
-  return readJsonStorage(STORAGE_KEYS.events, []);
-}
-
-function getAnalytics() {
-  return readJsonStorage(STORAGE_KEYS.analytics, {
-    pageViews: [],
-    clicks: []
-  });
 }
 
 function formatDateTime(value) {
@@ -79,45 +79,33 @@ function getSourceLabel(rawSource) {
 function renderMetrics() {
   const events = getEvents();
   const analytics = getAnalytics();
-  const activeEvents = events.filter((eventItem) => eventItem.status === "active").length;
   const uniqueVisitors = new Set([
     ...analytics.pageViews.map((entry) => entry.visitorId),
     ...analytics.clicks.map((entry) => entry.visitorId)
   ]);
-  const clickThroughRate = analytics.pageViews.length
-    ? Math.round((analytics.clicks.length / analytics.pageViews.length) * 100)
-    : 0;
+  const activeCount = events.filter((eventItem) => eventItem.status === "active").length;
+  const ctr = analytics.pageViews.length ? Math.round((analytics.clicks.length / analytics.pageViews.length) * 100) : 0;
 
   metricsGrid.innerHTML = `
-    <article class="metric-card">
-      <p>Total Events</p>
+    <article class="metric-block">
+      <p class="kicker">Events</p>
       <strong>${events.length}</strong>
-      <span>All stored event cards</span>
+      <span class="helper-copy">${activeCount} active on frontend</span>
     </article>
-    <article class="metric-card">
-      <p>Active Events</p>
-      <strong>${activeEvents}</strong>
-      <span>Visible on the public hub</span>
-    </article>
-    <article class="metric-card">
-      <p>Page Views</p>
+    <article class="metric-block">
+      <p class="kicker">Views</p>
       <strong>${analytics.pageViews.length}</strong>
-      <span>Tracked public hub visits</span>
+      <span class="helper-copy">Tracked public visits</span>
     </article>
-    <article class="metric-card">
-      <p>Link Clicks</p>
+    <article class="metric-block">
+      <p class="kicker">Clicks</p>
       <strong>${analytics.clicks.length}</strong>
-      <span>Outbound event clicks</span>
+      <span class="helper-copy">Outbound event link clicks</span>
     </article>
-    <article class="metric-card">
-      <p>Unique Visitors</p>
-      <strong>${uniqueVisitors.size}</strong>
-      <span>Estimated by browser storage</span>
-    </article>
-    <article class="metric-card">
-      <p>CTR</p>
-      <strong>${clickThroughRate}%</strong>
-      <span>Clicks divided by page views</span>
+    <article class="metric-block">
+      <p class="kicker">CTR</p>
+      <strong>${ctr}%</strong>
+      <span class="helper-copy">${uniqueVisitors.size} unique visitors</span>
     </article>
   `;
 }
@@ -139,24 +127,23 @@ function renderTopEvents() {
     .sort((left, right) => right.clicks - left.clicks || left.title.localeCompare(right.title));
 
   if (!rows.length) {
-    topEvents.innerHTML = '<p class="body-copy">No events available yet.</p>';
+    topEvents.innerHTML = '<article class="empty-state"><p class="body-copy">No event data available yet.</p></article>';
     return;
   }
 
   topEvents.innerHTML = rows.map((row) => `
-    <article class="analytics-row">
+    <article class="analytic-row">
       <div>
         <strong>${sanitizeText(row.title)}</strong>
         <span>${sanitizeText(row.status)}</span>
       </div>
-      <strong>${row.clicks} clicks</strong>
+      <strong>${row.clicks}</strong>
     </article>
   `).join("");
 }
 
 function renderSourceBreakdown() {
-  const pageViews = getAnalytics().pageViews;
-  const grouped = pageViews.reduce((accumulator, entry) => {
+  const grouped = getAnalytics().pageViews.reduce((accumulator, entry) => {
     const label = getSourceLabel(entry.source);
     accumulator[label] = (accumulator[label] || 0) + 1;
     return accumulator;
@@ -165,15 +152,15 @@ function renderSourceBreakdown() {
   const rows = Object.entries(grouped).sort((left, right) => right[1] - left[1]);
 
   if (!rows.length) {
-    sourceBreakdown.innerHTML = '<p class="body-copy">Traffic sources will appear after the public page is visited.</p>';
+    sourceBreakdown.innerHTML = '<article class="empty-state"><p class="body-copy">Traffic sources will appear after visits land on the public frontend.</p></article>';
     return;
   }
 
-  sourceBreakdown.innerHTML = rows.map(([source, count]) => `
-    <article class="analytics-row">
+  sourceBreakdown.innerHTML = rows.map(([label, count]) => `
+    <article class="analytic-row">
       <div>
-        <strong>${sanitizeText(source)}</strong>
-        <span>Hub visits</span>
+        <strong>${sanitizeText(label)}</strong>
+        <span>Frontend visits</span>
       </div>
       <strong>${count}</strong>
     </article>
@@ -192,22 +179,19 @@ function renderDailyTrend() {
   }
 
   const rows = days.map((day) => {
-    const isoDate = day.toISOString().slice(0, 10);
-    const pageViews = analytics.pageViews.filter((entry) => entry.timestamp.slice(0, 10) === isoDate).length;
-    const clicks = analytics.clicks.filter((entry) => entry.timestamp.slice(0, 10) === isoDate).length;
-
+    const iso = day.toISOString().slice(0, 10);
     return {
       label: new Intl.DateTimeFormat("en-IN", { month: "short", day: "numeric" }).format(day),
-      pageViews,
-      clicks
+      views: analytics.pageViews.filter((entry) => entry.timestamp.slice(0, 10) === iso).length,
+      clicks: analytics.clicks.filter((entry) => entry.timestamp.slice(0, 10) === iso).length
     };
   });
 
   dailyTrend.innerHTML = rows.map((row) => `
-    <article class="analytics-row">
+    <article class="analytic-row">
       <div>
         <strong>${sanitizeText(row.label)}</strong>
-        <span>${row.pageViews} views</span>
+        <span>${row.views} views</span>
       </div>
       <strong>${row.clicks} clicks</strong>
     </article>
@@ -221,12 +205,12 @@ function renderRecentClicks() {
     .slice(0, 10);
 
   if (!clicks.length) {
-    recentClicks.innerHTML = '<p class="body-copy">No clicks tracked yet.</p>';
+    recentClicks.innerHTML = '<article class="empty-state"><p class="body-copy">No clicks have been recorded yet.</p></article>';
     return;
   }
 
   recentClicks.innerHTML = clicks.map((click) => `
-    <article class="analytics-row">
+    <article class="analytic-row">
       <div>
         <strong>${sanitizeText(click.eventTitle || "Untitled event")}</strong>
         <span>${sanitizeText(getSourceLabel(click.source))} · ${sanitizeText(click.device)}</span>
@@ -267,7 +251,7 @@ function exportAnalytics() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "ksum-event-clicks.csv";
+  link.download = "ksum-linkhub-clicks.csv";
   link.click();
   URL.revokeObjectURL(url);
 }

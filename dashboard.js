@@ -18,6 +18,7 @@ const creativePreview = document.querySelector("#creativePreview");
 const clearCreativeButton = document.querySelector("#clearCreativeButton");
 const adminSearchInput = document.querySelector("#adminSearchInput");
 const eventList = document.querySelector("#eventList");
+const backendMetrics = document.querySelector("#backendMetrics");
 
 let uploadedCreativeDataUrl = "";
 
@@ -39,6 +40,13 @@ function getEvents() {
 
 function saveEvents(events) {
   writeJsonStorage(STORAGE_KEYS.events, events);
+}
+
+function getAnalytics() {
+  return readJsonStorage(STORAGE_KEYS.analytics, {
+    pageViews: [],
+    clicks: []
+  });
 }
 
 function sanitizeText(text) {
@@ -69,7 +77,7 @@ function fileToDataUrl(file) {
 
 function formatDate(value) {
   if (!value) {
-    return "No date";
+    return "Date TBA";
   }
 
   const date = new Date(value);
@@ -80,21 +88,72 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
 }
 
+function renderBackendMetrics() {
+  const events = getEvents();
+  const analytics = getAnalytics();
+  const activeCount = events.filter((entry) => entry.status === "active").length;
+  const pausedCount = events.filter((entry) => entry.status === "paused").length;
+  const archivedCount = events.filter((entry) => entry.status === "archived").length;
+  const topClicks = analytics.clicks.length;
+
+  backendMetrics.innerHTML = `
+    <article class="metric-block">
+      <p class="kicker">Events</p>
+      <strong>${events.length}</strong>
+      <span class="helper-copy">Total saved entries</span>
+    </article>
+    <article class="metric-block">
+      <p class="kicker">Live</p>
+      <strong>${activeCount}</strong>
+      <span class="helper-copy">Visible on frontend</span>
+    </article>
+    <article class="metric-block">
+      <p class="kicker">Paused</p>
+      <strong>${pausedCount}</strong>
+      <span class="helper-copy">Hidden but available</span>
+    </article>
+    <article class="metric-block">
+      <p class="kicker">Clicks</p>
+      <strong>${topClicks}</strong>
+      <span class="helper-copy">${archivedCount} archived entries</span>
+    </article>
+  `;
+}
+
 function renderCreativePreview() {
   const imageUrl = eventForm.elements.imageUrl.value.trim();
-  const previewSource = uploadedCreativeDataUrl || imageUrl;
+  const source = uploadedCreativeDataUrl || imageUrl;
+  const title = eventForm.elements.title.value.trim() || "Event title preview";
+  const description = eventForm.elements.description.value.trim() || "Your public-facing event description will appear here.";
+  const tag = eventForm.elements.tag.value.trim();
+  const date = eventForm.elements.date.value.trim();
+  const venue = eventForm.elements.venue.value.trim() || "Kerala Startup Mission";
+  const buttonLabel = eventForm.elements.buttonLabel.value.trim() || "Open Event";
 
-  if (!previewSource) {
-    creativePreview.innerHTML = `
-      <div class="creative-empty">
-        <strong>No creative selected</strong>
-        <span>Upload an image or paste an image URL to preview it here.</span>
+  const visual = source
+    ? `<img src="${sanitizeText(source)}" alt="Creative preview" class="preview-image">`
+    : `<div class="preview-empty"><strong>No creative selected</strong><span>Upload an image or paste a valid image URL.</span></div>`;
+
+  creativePreview.innerHTML = `
+    <article class="event-tile">
+      <div class="event-visual">${visual}</div>
+      <div class="event-copy">
+        <div class="event-meta-row">
+          ${tag ? `<span class="tag-pill">${sanitizeText(tag)}</span>` : ""}
+          <span class="meta-note">${sanitizeText(formatDate(date))}</span>
+        </div>
+        <h3>${sanitizeText(title)}</h3>
+        <p class="body-copy">${sanitizeText(description)}</p>
+        <div class="event-cta-row">
+          <div class="detail-stack">
+            <span class="meta-note">${sanitizeText(venue)}</span>
+            <span class="meta-note">Frontend preview card</span>
+          </div>
+          <span class="pill-link">${sanitizeText(buttonLabel)}</span>
+        </div>
       </div>
-    `;
-    return;
-  }
-
-  creativePreview.innerHTML = `<img src="${sanitizeText(previewSource)}" alt="Event creative preview" class="creative-image">`;
+    </article>
+  `;
 }
 
 function resetFormState() {
@@ -102,7 +161,9 @@ function resetFormState() {
   eventForm.elements.eventId.value = "";
   uploadedCreativeDataUrl = "";
   creativeUpload.value = "";
-  formHeading.textContent = "Create event";
+  formHeading.textContent = "Create event entry";
+  formStatus.textContent = "";
+  formStatus.classList.remove("is-error");
   renderCreativePreview();
 }
 
@@ -113,9 +174,10 @@ function getFilteredEvents() {
     .slice()
     .sort((left, right) => {
       const statusScore = (value) => (value === "active" ? 3 : value === "paused" ? 2 : 1);
-      const statusDifference = statusScore(right.status) - statusScore(left.status);
-      if (statusDifference !== 0) {
-        return statusDifference;
+      const statusDiff = statusScore(right.status) - statusScore(left.status);
+
+      if (statusDiff !== 0) {
+        return statusDiff;
       }
 
       return new Date(right.updatedAt || right.createdAt || 0) - new Date(left.updatedAt || left.createdAt || 0);
@@ -134,15 +196,15 @@ function getFilteredEvents() {
     });
 }
 
-function renderEventList() {
+function renderInventory() {
   const events = getFilteredEvents();
 
   if (!events.length) {
     eventList.innerHTML = `
-      <article class="empty-card">
-        <p class="eyebrow">No Events Yet</p>
-        <h3>Your event inventory is empty.</h3>
-        <p class="body-copy">Create the first event to publish it on the public hub.</p>
+      <article class="empty-state">
+        <p class="kicker">No Entries</p>
+        <h3>The backend has no event uploads yet.</h3>
+        <p class="body-copy">Create the first event to populate the public frontend.</p>
       </article>
     `;
     return;
@@ -151,36 +213,32 @@ function renderEventList() {
   eventList.innerHTML = events.map((eventItem) => {
     const imageSource = eventItem.imageDataUrl || eventItem.imageUrl;
     return `
-      <article class="admin-card">
-        <div class="admin-card-main">
-          <div class="admin-thumb">
+      <article class="inventory-card">
+        <div class="inventory-card-main">
+          <div class="inventory-thumb">
             ${imageSource
-              ? `<img src="${sanitizeText(imageSource)}" alt="${sanitizeText(eventItem.title)} creative" class="admin-thumb-image">`
-              : `<div class="admin-thumb-fallback">${sanitizeText((eventItem.title || "KS").slice(0, 2).toUpperCase())}</div>`
+              ? `<img src="${sanitizeText(imageSource)}" alt="${sanitizeText(eventItem.title)} creative" class="inventory-image">`
+              : `<div class="inventory-fallback">${sanitizeText((eventItem.title || "KS").slice(0, 2).toUpperCase())}</div>`
             }
           </div>
-
-          <div class="admin-copy">
-            <div class="admin-meta-row">
-              <span class="meta-pill">${sanitizeText(eventItem.status)}</span>
-              ${eventItem.tag ? `<span class="meta-copy">${sanitizeText(eventItem.tag)}</span>` : ""}
-              ${eventItem.date ? `<span class="meta-copy">${sanitizeText(formatDate(eventItem.date))}</span>` : ""}
+          <div class="inventory-copy">
+            <div class="inventory-meta">
+              <span class="status-pill">${sanitizeText(eventItem.status)}</span>
+              ${eventItem.tag ? `<span class="meta-note">${sanitizeText(eventItem.tag)}</span>` : ""}
+              <span class="meta-note">${sanitizeText(formatDate(eventItem.date))}</span>
             </div>
             <h3>${sanitizeText(eventItem.title)}</h3>
-            <p class="body-copy">${sanitizeText(eventItem.description || "No description added.")}</p>
-            <div class="meta-stack">
-              <span>${sanitizeText(eventItem.venue || "Kerala Startup Mission")}</span>
-              <a href="${sanitizeText(eventItem.url)}" target="_blank" rel="noopener noreferrer">${sanitizeText(eventItem.url)}</a>
+            <p>${sanitizeText(eventItem.description || "No description added.")}</p>
+            <div class="detail-stack">
+              <span class="meta-note">${sanitizeText(eventItem.venue || "Kerala Startup Mission")}</span>
+              <a class="meta-note" href="${sanitizeText(eventItem.url)}" target="_blank" rel="noopener noreferrer">${sanitizeText(eventItem.url)}</a>
             </div>
           </div>
         </div>
-
-        <div class="button-row">
-          <button type="button" class="ghost-button" data-edit-id="${sanitizeText(eventItem.id)}">Edit</button>
-          <button type="button" class="ghost-button" data-toggle-id="${sanitizeText(eventItem.id)}">
-            ${eventItem.status === "active" ? "Pause" : "Activate"}
-          </button>
-          <button type="button" class="danger-button" data-delete-id="${sanitizeText(eventItem.id)}">Delete</button>
+        <div class="inventory-actions">
+          <button type="button" data-edit-id="${sanitizeText(eventItem.id)}">Edit</button>
+          <button type="button" data-toggle-id="${sanitizeText(eventItem.id)}">${eventItem.status === "active" ? "Pause" : "Activate"}</button>
+          <button type="button" class="danger-action" data-delete-id="${sanitizeText(eventItem.id)}">Delete</button>
         </div>
       </article>
     `;
@@ -206,8 +264,8 @@ function renderEventList() {
       eventForm.elements.imageUrl.value = eventItem.imageUrl || "";
       uploadedCreativeDataUrl = eventItem.imageDataUrl || "";
       creativeUpload.value = "";
-      formHeading.textContent = "Edit event";
-      formStatus.textContent = "Editing existing event.";
+      formHeading.textContent = "Edit event entry";
+      formStatus.textContent = "Editing saved event.";
       formStatus.classList.remove("is-error");
       renderCreativePreview();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -216,7 +274,7 @@ function renderEventList() {
 
   eventList.querySelectorAll("[data-toggle-id]").forEach((button) => {
     button.addEventListener("click", () => {
-      const eventsCollection = getEvents().map((eventItem) => (
+      const nextEvents = getEvents().map((eventItem) => (
         eventItem.id === button.dataset.toggleId
           ? {
               ...eventItem,
@@ -226,8 +284,9 @@ function renderEventList() {
           : eventItem
       ));
 
-      saveEvents(eventsCollection);
-      renderEventList();
+      saveEvents(nextEvents);
+      renderBackendMetrics();
+      renderInventory();
     });
   });
 
@@ -239,13 +298,18 @@ function renderEventList() {
       }
 
       saveEvents(getEvents().filter((entry) => entry.id !== button.dataset.deleteId));
-      renderEventList();
-
       if (eventForm.elements.eventId.value === button.dataset.deleteId) {
         resetFormState();
       }
+      renderBackendMetrics();
+      renderInventory();
     });
   });
+}
+
+function refreshBackend() {
+  renderBackendMetrics();
+  renderInventory();
 }
 
 loginForm.addEventListener("submit", (event) => {
@@ -260,7 +324,7 @@ loginForm.addEventListener("submit", (event) => {
     loginStatus.classList.remove("is-error");
     loginShell.classList.add("hidden");
     dashboardApp.classList.remove("hidden");
-    renderEventList();
+    refreshBackend();
     return;
   }
 
@@ -268,7 +332,7 @@ loginForm.addEventListener("submit", (event) => {
   loginStatus.classList.add("is-error");
 });
 
-  logoutButton.addEventListener("click", () => {
+logoutButton.addEventListener("click", () => {
   setSession(false);
   dashboardApp.classList.add("hidden");
   loginShell.classList.remove("hidden");
@@ -295,7 +359,19 @@ creativeUpload.addEventListener("change", async () => {
   }
 });
 
-eventForm.elements.imageUrl.addEventListener("input", renderCreativePreview);
+[
+  eventForm.elements.title,
+  eventForm.elements.buttonLabel,
+  eventForm.elements.date,
+  eventForm.elements.venue,
+  eventForm.elements.tag,
+  eventForm.elements.description,
+  eventForm.elements.imageUrl
+].forEach((field) => {
+  field.addEventListener("input", renderCreativePreview);
+  field.addEventListener("change", renderCreativePreview);
+});
+
 clearCreativeButton.addEventListener("click", () => {
   uploadedCreativeDataUrl = "";
   creativeUpload.value = "";
@@ -304,13 +380,15 @@ clearCreativeButton.addEventListener("click", () => {
 });
 
 resetFormButton.addEventListener("click", resetFormState);
-adminSearchInput.addEventListener("input", renderEventList);
+adminSearchInput.addEventListener("input", renderInventory);
 
 eventForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(eventForm);
   const existingId = String(formData.get("eventId") || "").trim();
   const now = new Date().toISOString();
+  const events = getEvents();
+  const existing = events.find((entry) => entry.id === existingId);
 
   const record = {
     id: existingId || `event-${Date.now()}`,
@@ -325,32 +403,26 @@ eventForm.addEventListener("submit", (event) => {
     description: String(formData.get("description") || "").trim(),
     imageUrl: String(formData.get("imageUrl") || "").trim(),
     imageDataUrl: uploadedCreativeDataUrl,
-    createdAt: now,
+    createdAt: existing?.createdAt || now,
     updatedAt: now
   };
 
-  const eventsCollection = getEvents();
-  const existingRecord = eventsCollection.find((entry) => entry.id === record.id);
-
-  if (existingRecord) {
-    record.createdAt = existingRecord.createdAt || now;
-  }
-
-  const nextEvents = existingRecord
-    ? eventsCollection.map((entry) => (entry.id === record.id ? record : entry))
-    : [record, ...eventsCollection];
+  const nextEvents = existing
+    ? events.map((entry) => (entry.id === record.id ? record : entry))
+    : [record, ...events];
 
   saveEvents(nextEvents);
-  formStatus.textContent = existingRecord ? "Event updated." : "Event created.";
+  formStatus.textContent = existing ? "Event updated." : "Event created.";
   formStatus.classList.remove("is-error");
-  renderEventList();
+  refreshBackend();
   resetFormState();
+  formStatus.textContent = existing ? "Event updated." : "Event created.";
 });
 
 if (hasSession()) {
   loginShell.classList.add("hidden");
   dashboardApp.classList.remove("hidden");
-  renderEventList();
+  refreshBackend();
 }
 
 renderCreativePreview();
