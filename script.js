@@ -74,6 +74,24 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
 }
 
+function formatTime(value) {
+  if (!value) {
+    return "Time TBA";
+  }
+
+  const [hours, minutes] = String(value).split(":");
+  if (hours === undefined || minutes === undefined) {
+    return value;
+  }
+
+  const date = new Date();
+  date.setHours(Number(hours), Number(minutes), 0, 0);
+  return new Intl.DateTimeFormat("en-IN", {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+}
+
 function detectDeviceType() {
   return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
 }
@@ -205,15 +223,14 @@ function renderEvents() {
       <div class="event-copy">
         <div class="event-meta-row">
           ${eventItem.tag ? `<span class="tag-pill">${sanitizeText(eventItem.tag)}</span>` : ""}
-          <span class="meta-note">${sanitizeText(formatDate(eventItem.date))}</span>
+          <span class="meta-chip">${sanitizeText(formatDate(eventItem.date))}</span>
+          <span class="meta-chip">${sanitizeText(formatTime(eventItem.time))}</span>
+          <span class="meta-chip">${sanitizeText(eventItem.venue || "Kerala Startup Mission")}</span>
         </div>
         <h3>${sanitizeText(eventItem.title)}</h3>
         <p class="body-copy">${sanitizeText(eventItem.description || "Visit the event page for full information.")}</p>
         <div class="event-cta-row">
-          <div class="detail-stack">
-            <span class="meta-note">${sanitizeText(eventItem.venue || "Kerala Startup Mission")}</span>
-            <span class="meta-note">Live public event card</span>
-          </div>
+          <div class="detail-stack"></div>
           <button type="button" class="primary-button event-link-button" data-event-id="${sanitizeText(eventItem.id)}">
             ${sanitizeText(eventItem.buttonLabel || "Open Event")}
           </button>

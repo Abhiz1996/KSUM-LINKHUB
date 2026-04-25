@@ -127,6 +127,24 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
 }
 
+function formatTime(value) {
+  if (!value) {
+    return "Time TBA";
+  }
+
+  const [hours, minutes] = String(value).split(":");
+  if (hours === undefined || minutes === undefined) {
+    return value;
+  }
+
+  const date = new Date();
+  date.setHours(Number(hours), Number(minutes), 0, 0);
+  return new Intl.DateTimeFormat("en-IN", {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+}
+
 function renderBackendMetrics() {
   const events = getEvents();
   const analytics = getAnalytics();
@@ -166,6 +184,7 @@ function renderCreativePreview() {
   const description = eventForm.elements.description.value.trim() || "Your public-facing event description will appear here.";
   const tag = eventForm.elements.tag.value.trim();
   const date = eventForm.elements.date.value.trim();
+  const time = eventForm.elements.time.value.trim();
   const venue = eventForm.elements.venue.value.trim() || "Kerala Startup Mission";
   const buttonLabel = eventForm.elements.buttonLabel.value.trim() || "Open Event";
 
@@ -179,15 +198,14 @@ function renderCreativePreview() {
       <div class="event-copy">
         <div class="event-meta-row">
           ${tag ? `<span class="tag-pill">${sanitizeText(tag)}</span>` : ""}
-          <span class="meta-note">${sanitizeText(formatDate(date))}</span>
+          <span class="meta-chip">${sanitizeText(formatDate(date))}</span>
+          <span class="meta-chip">${sanitizeText(formatTime(time))}</span>
+          <span class="meta-chip">${sanitizeText(venue)}</span>
         </div>
         <h3>${sanitizeText(title)}</h3>
         <p class="body-copy">${sanitizeText(description)}</p>
         <div class="event-cta-row">
-          <div class="detail-stack">
-            <span class="meta-note">${sanitizeText(venue)}</span>
-            <span class="meta-note">Frontend preview card</span>
-          </div>
+          <div class="detail-stack"></div>
           <span class="pill-link">${sanitizeText(buttonLabel)}</span>
         </div>
       </div>
@@ -297,6 +315,7 @@ function renderInventory() {
       eventForm.elements.url.value = eventItem.url || "";
       eventForm.elements.buttonLabel.value = eventItem.buttonLabel || "";
       eventForm.elements.date.value = eventItem.date || "";
+      eventForm.elements.time.value = eventItem.time || "";
       eventForm.elements.venue.value = eventItem.venue || "";
       eventForm.elements.tag.value = eventItem.tag || "";
       eventForm.elements.sortOrder.value = eventItem.sortOrder || "";
@@ -433,6 +452,7 @@ creativeUpload.addEventListener("change", async () => {
   eventForm.elements.title,
   eventForm.elements.buttonLabel,
   eventForm.elements.date,
+  eventForm.elements.time,
   eventForm.elements.venue,
   eventForm.elements.tag,
   eventForm.elements.description,
@@ -486,6 +506,7 @@ eventForm.addEventListener("submit", (event) => {
     url: String(formData.get("url") || "").trim(),
     buttonLabel: String(formData.get("buttonLabel") || "").trim() || "Open Event",
     date: String(formData.get("date") || "").trim(),
+    time: String(formData.get("time") || "").trim(),
     venue: String(formData.get("venue") || "").trim(),
     tag: String(formData.get("tag") || "").trim(),
     sortOrder: Number(formData.get("sortOrder") || 0),

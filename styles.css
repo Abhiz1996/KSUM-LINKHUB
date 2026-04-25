@@ -531,7 +531,8 @@ img {
 }
 
 .tag-pill,
-.status-pill {
+.status-pill,
+.meta-chip {
   display: inline-flex;
   align-items: center;
   min-height: 32px;
@@ -552,6 +553,12 @@ img {
   text-transform: capitalize;
 }
 
+.meta-chip {
+  background: rgba(13, 34, 51, 0.06);
+  color: var(--midnight);
+  font-weight: 700;
+}
+
 .event-copy p,
 .inventory-copy p {
   margin: 0;
@@ -564,11 +571,13 @@ img {
 
 .event-cta-row {
   align-items: flex-end;
+  justify-content: space-between;
 }
 
 .detail-stack {
   display: grid;
   gap: 6px;
+  min-height: 1px;
 }
 
 .event-link-button {
