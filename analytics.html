@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Analytics dashboard for Kerala Startup Mission event traffic."
+    >
+    <title>KSUM Event Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="admin-body">
+    <div class="site-bg" aria-hidden="true"></div>
+
+    <main class="site-shell">
+      <header class="site-topbar">
+        <a class="brand" href="index.html">
+          <span class="brand-badge">KS</span>
+          <span>
+            <strong>KSUM Event Analytics</strong>
+            <small>Traffic and engagement snapshot</small>
+          </span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <a href="index.html">Public Hub</a>
+          <a href="dashboard.html">Admin</a>
+        </nav>
+      </header>
+
+      <section class="login-shell" id="loginShell">
+        <div class="login-card">
+          <p class="eyebrow">Protected Workspace</p>
+          <h1>Sign in to view event traffic.</h1>
+          <p class="body-copy">
+            Review page visits, tracked link clicks, popular events, daily activity, and available traffic sources.
+          </p>
+
+          <form id="loginForm" class="stack-form">
+            <label class="field">
+              <span>Username</span>
+              <input type="text" name="username" autocomplete="username" placeholder="Enter username">
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input type="password" name="password" autocomplete="current-password" placeholder="Enter password">
+            </label>
+            <button type="submit" class="primary-button">Open Analytics</button>
+          </form>
+
+          <p class="helper-copy">Demo login: <strong>admin</strong> / <strong>ksumevents</strong></p>
+          <p id="loginStatus" class="status-message" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="analyticsApp" class="admin-app hidden">
+        <div class="admin-hero">
+          <div>
+            <p class="eyebrow">Traffic Desk</p>
+            <h1>How your event links are performing.</h1>
+            <p class="body-copy">
+              This dashboard tracks public hub visits and outbound event clicks saved in browser storage.
+            </p>
+          </div>
+
+          <div class="button-row">
+            <button type="button" class="ghost-button" id="exportAnalyticsButton">Export Click Log</button>
+            <button type="button" class="ghost-button" id="logoutButton">Sign Out</button>
+          </div>
+        </div>
+
+        <section class="metrics-grid" id="metricsGrid"></section>
+
+        <section class="admin-grid analytics-grid">
+          <article class="content-card">
+            <div class="section-heading left">
+              <div>
+                <p class="eyebrow">Top Events</p>
+                <h2>Click leaderboard</h2>
+              </div>
+            </div>
+            <div id="topEvents" class="analytics-list"></div>
+          </article>
+
+          <article class="content-card">
+            <div class="section-heading left">
+              <div>
+                <p class="eyebrow">Traffic Sources</p>
+                <h2>Where visits came from</h2>
+              </div>
+            </div>
+            <div id="sourceBreakdown" class="analytics-list"></div>
+          </article>
+
+          <article class="content-card">
+            <div class="section-heading left">
+              <div>
+                <p class="eyebrow">Daily Activity</p>
+                <h2>Last 7 days</h2>
+              </div>
+            </div>
+            <div id="dailyTrend" class="analytics-list"></div>
+          </article>
+
+          <article class="content-card">
+            <div class="section-heading left">
+              <div>
+                <p class="eyebrow">Recent Clicks</p>
+                <h2>Latest engagement</h2>
+              </div>
+            </div>
+            <div id="recentClicks" class="analytics-list"></div>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="analytics.js"></script>
+  </body>
+</html>

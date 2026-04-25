@@ -1,43 +1,25 @@
 const STORAGE_KEYS = {
-  requests: "mediaBoxRequests",
-  tasks: "mediaBoxWorkflowTasks",
-  teams: "mediaBoxTeams",
-  session: "mediaBoxDashboardSession"
+  events: "ksumEventLinks",
+  analytics: "ksumEventAnalytics",
+  session: "ksumEventAdminSession"
 };
-
-const WORKFLOW_STATUSES = ["Will Do", "Ongoing", "Completed"];
 
 const loginShell = document.querySelector("#loginShell");
 const dashboardApp = document.querySelector("#dashboardApp");
 const loginForm = document.querySelector("#loginForm");
 const loginStatus = document.querySelector("#loginStatus");
 const logoutButton = document.querySelector("#logoutButton");
-const metricsGrid = document.querySelector("#metricsGrid");
-const detailPanel = document.querySelector("#detailPanel");
-const teamForm = document.querySelector("#teamForm");
-const teamInput = document.querySelector("#teamInput");
-const teamChipRow = document.querySelector("#teamChipRow");
-const drawerOverlay = document.querySelector("#drawerOverlay");
-const drawerClose = document.querySelector("#drawerClose");
-const drawerTaskTitle = document.querySelector("#drawerTaskTitle");
-const drawerTaskSummary = document.querySelector("#drawerTaskSummary");
-const drawerMeta = document.querySelector("#drawerMeta");
-const drawerStatus = document.querySelector("#drawerStatus");
-const drawerTeam = document.querySelector("#drawerTeam");
-const drawerAssignee = document.querySelector("#drawerAssignee");
-const drawerPriority = document.querySelector("#drawerPriority");
-const drawerNotes = document.querySelector("#drawerNotes");
-const requestDetailGrid = document.querySelector("#requestDetailGrid");
+const eventForm = document.querySelector("#eventForm");
+const formHeading = document.querySelector("#formHeading");
+const formStatus = document.querySelector("#formStatus");
+const resetFormButton = document.querySelector("#resetFormButton");
+const creativeUpload = document.querySelector("#creativeUpload");
+const creativePreview = document.querySelector("#creativePreview");
+const clearCreativeButton = document.querySelector("#clearCreativeButton");
+const adminSearchInput = document.querySelector("#adminSearchInput");
+const eventList = document.querySelector("#eventList");
 
-const filters = {
-  search: document.querySelector("#searchInput"),
-  category: document.querySelector("#categoryFilter"),
-  department: document.querySelector("#departmentFilter"),
-  team: document.querySelector("#teamFilter")
-};
-
-let activeTaskId = "";
-let dragTaskId = "";
+let uploadedCreativeDataUrl = "";
 
 function readJsonStorage(key, fallback) {
   try {
@@ -51,126 +33,12 @@ function writeJsonStorage(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-function ensureSeedData() {
-  const teams = readJsonStorage(STORAGE_KEYS.teams, []);
-  const tasks = readJsonStorage(STORAGE_KEYS.tasks, []);
-
-  if (!teams.length) {
-    writeJsonStorage(STORAGE_KEYS.teams, [
-      "Design Team",
-      "Content Team",
-      "PR Team",
-      "Social Media Team"
-    ]);
-  }
-
-  if (!tasks.length) {
-    const timestamp = new Date().toISOString();
-    writeJsonStorage(STORAGE_KEYS.tasks, [
-      {
-        id: "TASK-DEMO-1",
-        requestId: "REQ-DEMO-1",
-        title: "Founders meetup teaser reel",
-        category: "Social Media",
-        socialType: "New Creative",
-        department: "IEDC",
-        requesterName: "Aparna",
-        status: "Will Do",
-        team: "Social Media Team",
-        assignee: "To be assigned",
-        priority: "Fast Turnaround",
-        summary: "Need a short teaser reel with speaker highlights and registration CTA.",
-        createdAt: timestamp,
-        dueText: "2026-04-24",
-        notes: "",
-        payload: {
-          employeeName: "Aparna",
-          department: "IEDC",
-          category: "Social Media",
-          socialType: "New Creative",
-          newCreativeEventName: "Founders Meetup",
-          newCreativeDescription: "Build anticipation for the session and push registrations.",
-          newCreativeRegistrationLink: "https://example.com/register",
-          submittedAt: timestamp
-        }
-      },
-      {
-        id: "TASK-DEMO-2",
-        requestId: "REQ-DEMO-2",
-        title: "Quarterly funding milestone PR",
-        category: "PR",
-        socialType: "",
-        department: "Investment",
-        requesterName: "Midhun",
-        status: "Ongoing",
-        team: "PR Team",
-        assignee: "To be assigned",
-        priority: "High Touch",
-        summary: "Draft press note for latest funding milestone with quotes and context.",
-        createdAt: timestamp,
-        dueText: "2026-04-26T11:00",
-        notes: "Waiting for final approval quote.",
-        payload: {
-          employeeName: "Midhun",
-          department: "Investment",
-          category: "PR",
-          prEventAnnouncement: "Funding milestone announcement",
-          prWhySignificant: "Highlights ecosystem momentum and startup impact.",
-          prContactPerson: "Communications desk",
-          submittedAt: timestamp
-        }
-      },
-      {
-        id: "TASK-DEMO-3",
-        requestId: "REQ-DEMO-3",
-        title: "Startup award achievement card",
-        category: "Achievements",
-        socialType: "",
-        department: "Incubation",
-        requesterName: "Riya",
-        status: "Completed",
-        team: "Content Team",
-        assignee: "To be assigned",
-        priority: "Standard",
-        summary: "Achievement creative documenting the startup's latest award.",
-        createdAt: timestamp,
-        dueText: "",
-        notes: "Published on LinkedIn and archived in the deck.",
-        payload: {
-          employeeName: "Riya",
-          department: "Incubation",
-          category: "Achievements",
-          achievementStartupName: "SeedSpark Labs",
-          achievementDescription: "Won a national innovation award.",
-          submittedAt: timestamp
-        }
-      }
-    ]);
-  }
+function getEvents() {
+  return readJsonStorage(STORAGE_KEYS.events, []);
 }
 
-function getTasks() {
-  return readJsonStorage(STORAGE_KEYS.tasks, []);
-}
-
-function setTasks(tasks) {
-  writeJsonStorage(STORAGE_KEYS.tasks, tasks);
-}
-
-function getTeams() {
-  return readJsonStorage(STORAGE_KEYS.teams, []);
-}
-
-function setTeams(teams) {
-  writeJsonStorage(STORAGE_KEYS.teams, teams);
-}
-
-function setSession(isLoggedIn) {
-  localStorage.setItem(STORAGE_KEYS.session, isLoggedIn ? "active" : "");
-}
-
-function hasSession() {
-  return localStorage.getItem(STORAGE_KEYS.session) === "active";
+function saveEvents(events) {
+  writeJsonStorage(STORAGE_KEYS.events, events);
 }
 
 function sanitizeText(text) {
@@ -182,399 +50,202 @@ function sanitizeText(text) {
     .replaceAll("'", "&#39;");
 }
 
+function setSession(isActive) {
+  localStorage.setItem(STORAGE_KEYS.session, isActive ? "active" : "");
+}
+
+function hasSession() {
+  return localStorage.getItem(STORAGE_KEYS.session) === "active";
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Could not read the selected image."));
+    reader.readAsDataURL(file);
+  });
+}
+
 function formatDate(value) {
   if (!value) {
-    return "No due date";
+    return "No date";
   }
 
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-    ...(value.includes("T") ? { timeStyle: "short" } : {})
-  }).format(date);
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
 }
 
-function populateFilters() {
-  const currentDepartment = filters.department.value;
-  const currentTeam = filters.team.value;
-  const tasks = getTasks();
-  const teams = getTeams();
-  const departments = Array.from(new Set(tasks.map((task) => task.department).filter(Boolean))).sort();
+function renderCreativePreview() {
+  const imageUrl = eventForm.elements.imageUrl.value.trim();
+  const previewSource = uploadedCreativeDataUrl || imageUrl;
 
-  filters.department.innerHTML = '<option value="">All departments</option>'
-    + departments.map((department) => `<option>${sanitizeText(department)}</option>`).join("");
-
-  const teamOptions = ['<option value="">All teams</option>']
-    .concat(teams.map((team) => `<option>${sanitizeText(team)}</option>`))
-    .join("");
-
-  filters.team.innerHTML = teamOptions;
-  drawerTeam.innerHTML = teams.map((team) => `<option>${sanitizeText(team)}</option>`).join("");
-  drawerStatus.innerHTML = WORKFLOW_STATUSES.map((status) => `<option>${status}</option>`).join("");
-
-  filters.department.value = departments.includes(currentDepartment) ? currentDepartment : "";
-  filters.team.value = teams.includes(currentTeam) ? currentTeam : "";
-}
-
-function getFilteredTasks() {
-  const tasks = getTasks();
-  const searchTerm = filters.search.value.trim().toLowerCase();
-
-  return tasks.filter((task) => {
-    const matchesSearch = !searchTerm || [
-      task.title,
-      task.requesterName,
-      task.team,
-      task.assignee,
-      task.summary
-    ].some((value) => String(value || "").toLowerCase().includes(searchTerm));
-
-    const matchesCategory = !filters.category.value || task.category === filters.category.value;
-    const matchesDepartment = !filters.department.value || task.department === filters.department.value;
-    const matchesTeam = !filters.team.value || task.team === filters.team.value;
-
-    return matchesSearch && matchesCategory && matchesDepartment && matchesTeam;
-  });
-}
-
-function renderMetrics(tasks) {
-  const willDoCount = tasks.filter((task) => task.status === "Will Do").length;
-  const ongoingCount = tasks.filter((task) => task.status === "Ongoing").length;
-  const completedCount = tasks.filter((task) => task.status === "Completed").length;
-  const prCount = tasks.filter((task) => task.category === "PR").length;
-
-  metricsGrid.innerHTML = `
-    <article class="metric-card">
-      <p class="eyebrow">Queue</p>
-      <strong>${tasks.length}</strong>
-      <span>Total cards across all categories</span>
-    </article>
-    <article class="metric-card">
-      <p class="eyebrow">Live Work</p>
-      <strong>${ongoingCount}</strong>
-      <span>Items currently in production or review</span>
-    </article>
-    <article class="metric-card">
-      <p class="eyebrow">Ready Next</p>
-      <strong>${willDoCount}</strong>
-      <span>Requests waiting for assignment or kickoff</span>
-    </article>
-    <article class="metric-card">
-      <p class="eyebrow">PR Focus</p>
-      <strong>${prCount}</strong>
-      <span>Press-release work currently in the system</span>
-    </article>
-  `;
-
-  document.querySelector('[data-count-for="Will Do"]').textContent = willDoCount;
-  document.querySelector('[data-count-for="Ongoing"]').textContent = ongoingCount;
-  document.querySelector('[data-count-for="Completed"]').textContent = completedCount;
-}
-
-function createTaskCard(task) {
-  const card = document.createElement("article");
-  card.className = "task-card";
-  card.draggable = true;
-  card.dataset.taskId = task.id;
-
-  const categoryClass = task.category === "PR" ? "pill is-pr" : "pill";
-
-  card.innerHTML = `
-    <div class="task-topline">
-      <span class="${categoryClass}">${sanitizeText(task.category)}</span>
-      <span class="priority-pill">${sanitizeText(task.priority)}</span>
-    </div>
-    <h4 class="task-title">${sanitizeText(task.title)}</h4>
-    <p class="task-subtitle">${sanitizeText(task.summary)}</p>
-    <div class="task-meta">
-      <p>${sanitizeText(task.requesterName)}</p>
-      <p>${sanitizeText(task.department)}</p>
-      <p>${sanitizeText(task.team)}</p>
-    </div>
-    <div class="task-tags">
-      <span class="chip-stat">Assignee: ${sanitizeText(task.assignee)}</span>
-      <span class="chip-stat">${sanitizeText(formatDate(task.dueText))}</span>
-    </div>
-  `;
-
-  card.addEventListener("click", () => openTask(task.id));
-  card.addEventListener("dragstart", () => {
-    dragTaskId = task.id;
-    card.classList.add("dragging");
-  });
-  card.addEventListener("dragend", () => {
-    dragTaskId = "";
-    card.classList.remove("dragging");
-  });
-
-  return card;
-}
-
-function renderTeamChips() {
-  const teams = getTeams();
-  teamChipRow.innerHTML = teams
-    .map((team) => `
-      <span class="team-chip">
-        ${sanitizeText(team)}
-        <button type="button" data-remove-team="${sanitizeText(team)}">x</button>
-      </span>
-    `)
-    .join("");
-
-  teamChipRow.querySelectorAll("[data-remove-team]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const teamName = button.dataset.removeTeam;
-      setTeams(getTeams().filter((team) => team !== teamName));
-
-      const tasks = getTasks().map((task) => ({
-        ...task,
-        team: task.team === teamName ? "Content Team" : task.team
-      }));
-      setTasks(tasks);
-      rerender();
-    });
-  });
-}
-
-function renderDetailPanel(task) {
-  if (!task) {
-    detailPanel.innerHTML = `
-      <div class="section-heading">
-        <p class="eyebrow">Request Details</p>
-        <h2>Open a card</h2>
-        <p>Card details, headings, notes, and ownership controls will appear here.</p>
+  if (!previewSource) {
+    creativePreview.innerHTML = `
+      <div class="creative-empty">
+        <strong>No creative selected</strong>
+        <span>Upload an image or paste an image URL to preview it here.</span>
       </div>
     `;
     return;
   }
 
-  detailPanel.innerHTML = `
-    <div class="section-heading">
-      <p class="eyebrow">Selected Card</p>
-      <h2>${sanitizeText(task.title)}</h2>
-      <p>${sanitizeText(task.summary)}</p>
-    </div>
-    <div class="task-meta">
-      <p>${sanitizeText(task.category)}</p>
-      <p>${sanitizeText(task.status)}</p>
-      <p>${sanitizeText(task.team)}</p>
-    </div>
-    <div class="drawer-actions">
-      <button class="primary-button" type="button" id="openDrawerButton">Open Full Details</button>
-    </div>
-  `;
-
-  document.querySelector("#openDrawerButton").addEventListener("click", () => openTask(task.id));
+  creativePreview.innerHTML = `<img src="${sanitizeText(previewSource)}" alt="Event creative preview" class="creative-image">`;
 }
 
-function renderBoard() {
-  const tasks = getFilteredTasks();
-  renderMetrics(tasks);
+function resetFormState() {
+  eventForm.reset();
+  eventForm.elements.eventId.value = "";
+  uploadedCreativeDataUrl = "";
+  creativeUpload.value = "";
+  formHeading.textContent = "Create event";
+  renderCreativePreview();
+}
 
-  WORKFLOW_STATUSES.forEach((status) => {
-    const laneNode = document.querySelector(`[data-lane-cards="${status}"]`);
-    laneNode.innerHTML = "";
+function getFilteredEvents() {
+  const term = adminSearchInput.value.trim().toLowerCase();
 
-    const laneTasks = tasks.filter((task) => task.status === status);
-
-    laneTasks.forEach((task) => laneNode.appendChild(createTaskCard(task)));
-
-    if (!laneTasks.length) {
-      laneNode.innerHTML = '<div class="lane-empty">No cards in this stage right now.</div>';
-    }
-  });
-
-  document.querySelectorAll(".lane-cards").forEach((laneNode) => {
-    laneNode.addEventListener("dragover", (event) => {
-      event.preventDefault();
-    });
-
-    laneNode.addEventListener("drop", () => {
-      if (!dragTaskId) {
-        return;
+  return getEvents()
+    .slice()
+    .sort((left, right) => {
+      const statusScore = (value) => (value === "active" ? 3 : value === "paused" ? 2 : 1);
+      const statusDifference = statusScore(right.status) - statusScore(left.status);
+      if (statusDifference !== 0) {
+        return statusDifference;
       }
 
-      const newStatus = laneNode.dataset.laneCards;
-      updateTask(dragTaskId, { status: newStatus });
-    });
-  });
-
-  if (!tasks.length) {
-    detailPanel.innerHTML = `
-      <section class="empty-dashboard">
-        <p class="eyebrow">No Matching Cards</p>
-        <h2>No requests match the current filters.</h2>
-        <p>Try clearing one of the filters or submit a new request from the intake form.</p>
-      </section>
-    `;
-  }
-}
-
-function requestEntries(payload) {
-  return Object.entries(payload || {}).filter(([, value]) => value);
-}
-
-function renderRequestDetails(payload) {
-  const groupedHeadings = [
-    {
-      title: "Requester",
-      keys: ["employeeName", "department", "category", "socialType", "submittedAt"]
-    },
-    {
-      title: "Social Media",
-      keys: [
-        "newCreativeEventName",
-        "newCreativeEventDate",
-        "newCreativeEventTime",
-        "newCreativeLocation",
-        "newCreativeRegistrationLink",
-        "newCreativeDescription",
-        "postEventTitle",
-        "postEventDate",
-        "postEventLocation",
-        "postEventPhotoDriveLink",
-        "postEventTaggingDetails",
-        "externalEventName",
-        "externalPartnerOrganisation",
-        "externalRegistrationLink",
-        "externalEventDate",
-        "externalEventLocation",
-        "externalCreativeToBePublished",
-        "externalTaggingLinks"
-      ]
-    },
-    {
-      title: "PR",
-      keys: [
-        "prEventAnnouncement",
-        "prWhoIsInvolved",
-        "prWhen",
-        "prWhere",
-        "prWhySignificant",
-        "prKeyHighlights",
-        "prNotableSpeakers",
-        "prBackgroundContext",
-        "prQuotes",
-        "prTestimonials",
-        "prFollowUpEvents",
-        "prMoreInformation",
-        "prMediaAssets",
-        "prCaptions",
-        "prContactPerson"
-      ]
-    },
-    {
-      title: "Achievements",
-      keys: [
-        "achievementStartupName",
-        "achievementDescription",
-        "achievementPhotos",
-        "achievementLogos",
-        "achievementTaggingLinks",
-        "achievementContactDetails"
-      ]
-    }
-  ];
-
-  requestDetailGrid.innerHTML = groupedHeadings
-    .map((group) => {
-      const rows = group.keys
-        .filter((key) => payload[key])
-        .map((key) => {
-          const value = payload[key];
-          const isUrl = /^https?:\/\//i.test(String(value));
-          return `
-            <div class="detail-group">
-              <strong>${sanitizeText(key)}</strong>
-              ${isUrl
-                ? `<a href="${sanitizeText(value)}" target="_blank" rel="noopener noreferrer">${sanitizeText(value)}</a>`
-                : `<span>${sanitizeText(value)}</span>`
-              }
-            </div>
-          `;
-        })
-        .join("");
-
-      if (!rows) {
-        return "";
-      }
-
-      return `
-        <section>
-          <h4>${sanitizeText(group.title)}</h4>
-          <div class="request-detail-grid">${rows}</div>
-        </section>
-      `;
+      return new Date(right.updatedAt || right.createdAt || 0) - new Date(left.updatedAt || left.createdAt || 0);
     })
-    .join("");
+    .filter((eventItem) => {
+      if (!term) {
+        return true;
+      }
+
+      return [
+        eventItem.title,
+        eventItem.description,
+        eventItem.tag,
+        eventItem.venue
+      ].some((value) => String(value || "").toLowerCase().includes(term));
+    });
 }
 
-function openTask(taskId) {
-  const task = getTasks().find((item) => item.id === taskId);
+function renderEventList() {
+  const events = getFilteredEvents();
 
-  if (!task) {
+  if (!events.length) {
+    eventList.innerHTML = `
+      <article class="empty-card">
+        <p class="eyebrow">No Events Yet</p>
+        <h3>Your event inventory is empty.</h3>
+        <p class="body-copy">Create the first event to publish it on the public hub.</p>
+      </article>
+    `;
     return;
   }
 
-  activeTaskId = taskId;
-  renderDetailPanel(task);
+  eventList.innerHTML = events.map((eventItem) => {
+    const imageSource = eventItem.imageDataUrl || eventItem.imageUrl;
+    return `
+      <article class="admin-card">
+        <div class="admin-card-main">
+          <div class="admin-thumb">
+            ${imageSource
+              ? `<img src="${sanitizeText(imageSource)}" alt="${sanitizeText(eventItem.title)} creative" class="admin-thumb-image">`
+              : `<div class="admin-thumb-fallback">${sanitizeText((eventItem.title || "KS").slice(0, 2).toUpperCase())}</div>`
+            }
+          </div>
 
-  drawerTaskTitle.textContent = task.title;
-  drawerTaskSummary.textContent = task.summary;
-  drawerMeta.innerHTML = `
-    <p>${sanitizeText(task.category)}</p>
-    <p>${sanitizeText(task.department)}</p>
-    <p>${sanitizeText(task.requesterName)}</p>
-    <p>${sanitizeText(formatDate(task.createdAt))}</p>
-  `;
+          <div class="admin-copy">
+            <div class="admin-meta-row">
+              <span class="meta-pill">${sanitizeText(eventItem.status)}</span>
+              ${eventItem.tag ? `<span class="meta-copy">${sanitizeText(eventItem.tag)}</span>` : ""}
+              ${eventItem.date ? `<span class="meta-copy">${sanitizeText(formatDate(eventItem.date))}</span>` : ""}
+            </div>
+            <h3>${sanitizeText(eventItem.title)}</h3>
+            <p class="body-copy">${sanitizeText(eventItem.description || "No description added.")}</p>
+            <div class="meta-stack">
+              <span>${sanitizeText(eventItem.venue || "Kerala Startup Mission")}</span>
+              <a href="${sanitizeText(eventItem.url)}" target="_blank" rel="noopener noreferrer">${sanitizeText(eventItem.url)}</a>
+            </div>
+          </div>
+        </div>
 
-  drawerStatus.value = task.status;
-  drawerTeam.value = task.team;
-  drawerAssignee.value = task.assignee;
-  drawerPriority.value = task.priority;
-  drawerNotes.value = task.notes;
+        <div class="button-row">
+          <button type="button" class="ghost-button" data-edit-id="${sanitizeText(eventItem.id)}">Edit</button>
+          <button type="button" class="ghost-button" data-toggle-id="${sanitizeText(eventItem.id)}">
+            ${eventItem.status === "active" ? "Pause" : "Activate"}
+          </button>
+          <button type="button" class="danger-button" data-delete-id="${sanitizeText(eventItem.id)}">Delete</button>
+        </div>
+      </article>
+    `;
+  }).join("");
 
-  renderRequestDetails(task.payload || {});
-  drawerOverlay.classList.add("is-open");
-  drawerOverlay.setAttribute("aria-hidden", "false");
-}
+  eventList.querySelectorAll("[data-edit-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventItem = getEvents().find((entry) => entry.id === button.dataset.editId);
+      if (!eventItem) {
+        return;
+      }
 
-function closeDrawer() {
-  drawerOverlay.classList.remove("is-open");
-  drawerOverlay.setAttribute("aria-hidden", "true");
-}
+      eventForm.elements.eventId.value = eventItem.id;
+      eventForm.elements.title.value = eventItem.title || "";
+      eventForm.elements.status.value = eventItem.status || "active";
+      eventForm.elements.url.value = eventItem.url || "";
+      eventForm.elements.buttonLabel.value = eventItem.buttonLabel || "";
+      eventForm.elements.date.value = eventItem.date || "";
+      eventForm.elements.venue.value = eventItem.venue || "";
+      eventForm.elements.tag.value = eventItem.tag || "";
+      eventForm.elements.sortOrder.value = eventItem.sortOrder || "";
+      eventForm.elements.description.value = eventItem.description || "";
+      eventForm.elements.imageUrl.value = eventItem.imageUrl || "";
+      uploadedCreativeDataUrl = eventItem.imageDataUrl || "";
+      creativeUpload.value = "";
+      formHeading.textContent = "Edit event";
+      formStatus.textContent = "Editing existing event.";
+      formStatus.classList.remove("is-error");
+      renderCreativePreview();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
 
-function updateTask(taskId, updates) {
-  const tasks = getTasks().map((task) => (
-    task.id === taskId
-      ? { ...task, ...updates }
-      : task
-  ));
+  eventList.querySelectorAll("[data-toggle-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventsCollection = getEvents().map((eventItem) => (
+        eventItem.id === button.dataset.toggleId
+          ? {
+              ...eventItem,
+              status: eventItem.status === "active" ? "paused" : "active",
+              updatedAt: new Date().toISOString()
+            }
+          : eventItem
+      ));
 
-  setTasks(tasks);
-  rerender();
+      saveEvents(eventsCollection);
+      renderEventList();
+    });
+  });
 
-  if (activeTaskId === taskId) {
-    const updatedTask = tasks.find((task) => task.id === taskId);
-    renderDetailPanel(updatedTask);
-    if (drawerOverlay.classList.contains("is-open")) {
-      openTask(taskId);
-    }
-  }
-}
+  eventList.querySelectorAll("[data-delete-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventItem = getEvents().find((entry) => entry.id === button.dataset.deleteId);
+      if (!eventItem || !window.confirm(`Delete "${eventItem.title}"?`)) {
+        return;
+      }
 
-function rerender() {
-  populateFilters();
-  renderTeamChips();
-  renderBoard();
+      saveEvents(getEvents().filter((entry) => entry.id !== button.dataset.deleteId));
+      renderEventList();
 
-  const activeTask = getTasks().find((task) => task.id === activeTaskId);
-  renderDetailPanel(activeTask);
+      if (eventForm.elements.eventId.value === button.dataset.deleteId) {
+        resetFormState();
+      }
+    });
+  });
 }
 
 loginForm.addEventListener("submit", (event) => {
@@ -583,14 +254,13 @@ loginForm.addEventListener("submit", (event) => {
   const username = String(formData.get("username") || "").trim();
   const password = String(formData.get("password") || "").trim();
 
-  if (username === "admin" && password === "mediabox") {
+  if (username === "admin" && password === "ksumevents") {
     setSession(true);
     loginStatus.textContent = "";
     loginStatus.classList.remove("is-error");
-    loginShell.classList.add("is-hidden");
-    dashboardApp.classList.remove("is-hidden");
-    logoutButton.classList.remove("is-hidden");
-    rerender();
+    loginShell.classList.add("hidden");
+    dashboardApp.classList.remove("hidden");
+    renderEventList();
     return;
   }
 
@@ -598,75 +268,89 @@ loginForm.addEventListener("submit", (event) => {
   loginStatus.classList.add("is-error");
 });
 
-logoutButton.addEventListener("click", () => {
+  logoutButton.addEventListener("click", () => {
   setSession(false);
-  closeDrawer();
-  dashboardApp.classList.add("is-hidden");
-  loginShell.classList.remove("is-hidden");
-  logoutButton.classList.add("is-hidden");
+  dashboardApp.classList.add("hidden");
+  loginShell.classList.remove("hidden");
+  loginStatus.textContent = "";
+  loginStatus.classList.remove("is-error");
 });
 
-teamForm.addEventListener("submit", (event) => {
+creativeUpload.addEventListener("change", async () => {
+  const file = creativeUpload.files?.[0];
+  if (!file) {
+    uploadedCreativeDataUrl = "";
+    renderCreativePreview();
+    return;
+  }
+
+  try {
+    uploadedCreativeDataUrl = await fileToDataUrl(file);
+    formStatus.textContent = "Creative uploaded successfully.";
+    formStatus.classList.remove("is-error");
+    renderCreativePreview();
+  } catch (error) {
+    formStatus.textContent = error.message;
+    formStatus.classList.add("is-error");
+  }
+});
+
+eventForm.elements.imageUrl.addEventListener("input", renderCreativePreview);
+clearCreativeButton.addEventListener("click", () => {
+  uploadedCreativeDataUrl = "";
+  creativeUpload.value = "";
+  eventForm.elements.imageUrl.value = "";
+  renderCreativePreview();
+});
+
+resetFormButton.addEventListener("click", resetFormState);
+adminSearchInput.addEventListener("input", renderEventList);
+
+eventForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  const teamName = teamInput.value.trim();
+  const formData = new FormData(eventForm);
+  const existingId = String(formData.get("eventId") || "").trim();
+  const now = new Date().toISOString();
 
-  if (!teamName) {
-    return;
+  const record = {
+    id: existingId || `event-${Date.now()}`,
+    title: String(formData.get("title") || "").trim(),
+    status: String(formData.get("status") || "active").trim(),
+    url: String(formData.get("url") || "").trim(),
+    buttonLabel: String(formData.get("buttonLabel") || "").trim() || "Open Event",
+    date: String(formData.get("date") || "").trim(),
+    venue: String(formData.get("venue") || "").trim(),
+    tag: String(formData.get("tag") || "").trim(),
+    sortOrder: Number(formData.get("sortOrder") || 0),
+    description: String(formData.get("description") || "").trim(),
+    imageUrl: String(formData.get("imageUrl") || "").trim(),
+    imageDataUrl: uploadedCreativeDataUrl,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  const eventsCollection = getEvents();
+  const existingRecord = eventsCollection.find((entry) => entry.id === record.id);
+
+  if (existingRecord) {
+    record.createdAt = existingRecord.createdAt || now;
   }
 
-  const teams = getTeams();
+  const nextEvents = existingRecord
+    ? eventsCollection.map((entry) => (entry.id === record.id ? record : entry))
+    : [record, ...eventsCollection];
 
-  if (!teams.includes(teamName)) {
-    setTeams(teams.concat(teamName));
-    teamInput.value = "";
-    rerender();
-  }
+  saveEvents(nextEvents);
+  formStatus.textContent = existingRecord ? "Event updated." : "Event created.";
+  formStatus.classList.remove("is-error");
+  renderEventList();
+  resetFormState();
 });
-
-[filters.search, filters.category, filters.department, filters.team].forEach((element) => {
-  element.addEventListener("input", renderBoard);
-  element.addEventListener("change", renderBoard);
-});
-
-drawerClose.addEventListener("click", closeDrawer);
-drawerOverlay.addEventListener("click", (event) => {
-  if (event.target === drawerOverlay) {
-    closeDrawer();
-  }
-});
-
-document.querySelector("#saveTaskButton").addEventListener("click", () => {
-  if (!activeTaskId) {
-    return;
-  }
-
-  updateTask(activeTaskId, {
-    status: drawerStatus.value,
-    team: drawerTeam.value,
-    assignee: drawerAssignee.value.trim() || "To be assigned",
-    priority: drawerPriority.value,
-    notes: drawerNotes.value.trim()
-  });
-});
-
-document.querySelector("#markOngoingButton").addEventListener("click", () => {
-  if (activeTaskId) {
-    updateTask(activeTaskId, { status: "Ongoing" });
-  }
-});
-
-document.querySelector("#markCompletedButton").addEventListener("click", () => {
-  if (activeTaskId) {
-    updateTask(activeTaskId, { status: "Completed" });
-  }
-});
-
-ensureSeedData();
-populateFilters();
 
 if (hasSession()) {
-  loginShell.classList.add("is-hidden");
-  dashboardApp.classList.remove("is-hidden");
-  logoutButton.classList.remove("is-hidden");
-  rerender();
+  loginShell.classList.add("hidden");
+  dashboardApp.classList.remove("hidden");
+  renderEventList();
 }
+
+renderCreativePreview();

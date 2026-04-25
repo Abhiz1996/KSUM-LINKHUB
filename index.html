@@ -5,536 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Media Box Request Hub for PR, social media, and achievement workflows."
+      content="A Linktree-style event hub for Kerala Startup Mission with active event links and click tracking."
     >
-    <title>Media Box Request Hub</title>
+    <title>Kerala Startup Mission Events</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     >
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="ambient-layer" aria-hidden="true"></div>
+    <div class="site-bg" aria-hidden="true"></div>
 
-    <main class="app-shell">
-      <header class="topbar">
-        <a class="brand-mark" href="index.html">
-          <span class="brand-mark-dot"></span>
+    <main class="site-shell">
+      <header class="site-topbar">
+        <a class="brand" href="index.html">
+          <span class="brand-badge">KS</span>
           <span>
-            <strong>Media Box</strong>
-            <small>Requests and workflow</small>
+            <strong>Kerala Startup Mission</strong>
+            <small>Active events hub</small>
           </span>
         </a>
 
-        <div class="topbar-actions">
-          <a class="ghost-link" href="#requestHub">Open Request Hub</a>
-          <a class="primary-link" href="dashboard.html">Team Login</a>
-        </div>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="dashboard.html">Admin</a>
+          <a href="analytics.html">Analytics</a>
+        </nav>
       </header>
 
-      <section class="hero-panel">
+      <section class="hero-card">
         <div class="hero-copy">
-          <p class="eyebrow">Communications Intake</p>
-          <h1>Capture media requests without slowing the team down.</h1>
+          <p class="eyebrow">Discover Live Programs</p>
+          <h1>All active KSUM events in one clean public page.</h1>
           <p class="hero-text">
-            A lightweight request desk for social media, PR, and achievement stories,
-            paired with a visual workflow board for live execution.
+            Publish every live event with a creative, short description, and direct registration link.
+            Each click is tracked so you can understand which programs are getting attention.
           </p>
 
-          <div class="hero-actions">
-            <a class="primary-link" href="#requestHub">Submit a Request</a>
-            <a class="ghost-link" href="dashboard.html">Open Workflow Desk</a>
-          </div>
-
-          <div class="hero-metrics">
+          <div class="hero-metrics" id="heroMetrics">
             <article>
-              <strong>Flexible Intake</strong>
-              <span>All form questions are optional so partial briefs can still move ahead.</span>
+              <strong id="activeEventCount">0</strong>
+              <span>Active events</span>
             </article>
             <article>
-              <strong>Workflow Visibility</strong>
-              <span>PR and social tasks can be reviewed, assigned, and tracked on one board.</span>
+              <strong id="trackedClickCount">0</strong>
+              <span>Tracked clicks</span>
             </article>
             <article>
-              <strong>Documentation Ready</strong>
-              <span>Each request produces a structured summary for printing or follow-up.</span>
+              <strong id="visitorCount">0</strong>
+              <span>Visitors tracked</span>
             </article>
           </div>
         </div>
 
-        <aside class="hero-preview" aria-label="Workflow preview">
-          <div class="preview-card">
-            <div class="preview-header">
-              <p>Live Desk Snapshot</p>
-              <span>Today</span>
-            </div>
-
-            <div class="preview-lanes">
-              <section>
-                <h2>Will Do</h2>
-                <article>
-                  <strong>Founder story reel</strong>
-                  <span>Social Media</span>
-                </article>
-                <article>
-                  <strong>PR launch note</strong>
-                  <span>Press Release</span>
-                </article>
-              </section>
-
-              <section>
-                <h2>Ongoing</h2>
-                <article>
-                  <strong>Post-event poster</strong>
-                  <span>Design Team</span>
-                </article>
-              </section>
-
-              <section>
-                <h2>Completed</h2>
-                <article>
-                  <strong>Achievement showcase</strong>
-                  <span>Published</span>
-                </article>
-              </section>
-            </div>
-          </div>
+        <aside class="hero-panel">
+          <p class="eyebrow">How It Works</p>
+          <ul class="hero-list">
+            <li>Upload a creative for each event.</li>
+            <li>Add a short event description and CTA link.</li>
+            <li>Mark events active or paused from the admin dashboard.</li>
+            <li>Monitor traffic trends from the analytics view.</li>
+          </ul>
         </aside>
       </section>
 
-      <section class="form-shell" id="requestHub">
+      <section class="content-card">
         <div class="section-heading">
-          <p class="eyebrow">Request Hub</p>
-          <h2>Submit a PR or media request</h2>
-          <p>
-            Share as much or as little as you have right now. Missing details can be added later in the workflow desk.
-          </p>
+          <div>
+            <p class="eyebrow">Event Links</p>
+            <h2>Live now</h2>
+          </div>
+          <label class="search-field">
+            <span class="sr-only">Search active events</span>
+            <input type="search" id="searchInput" placeholder="Search events, tags, venue">
+          </label>
         </div>
 
-        <div class="progress-strip" aria-label="Form progress">
-          <div class="progress-step is-active" data-progress-step="intro">1</div>
-          <div class="progress-step" data-progress-step="social-type">2</div>
-          <div class="progress-step" data-progress-step="details">3</div>
-          <div class="progress-step" data-progress-step="summary">4</div>
-        </div>
-
-        <form id="mediaRequestForm" class="media-form" novalidate>
-          <div class="step-panel" data-step-panel="intro">
-            <section class="form-section">
-              <div class="section-title">
-                <span>Q1</span>
-                <h3>Basic Details</h3>
-              </div>
-
-              <div class="field-grid two-col">
-                <label class="field">
-                  <span>Name</span>
-                  <input type="text" name="employeeName" placeholder="Enter full name">
-                </label>
-
-                <label class="field">
-                  <span>Name of Department</span>
-                  <select name="department">
-                    <option value="">Select department</option>
-                    <option>Rink</option>
-                    <option>IEDC</option>
-                    <option>Grants</option>
-                    <option>Investment</option>
-                    <option>Coworking</option>
-                    <option>Corporate Relations</option>
-                    <option>Women</option>
-                    <option>Incubation</option>
-                    <option>IT</option>
-                    <option>Infra</option>
-                    <option>HR</option>
-                    <option>Admin</option>
-                    <option>Accounts</option>
-                  </select>
-                </label>
-              </div>
-            </section>
-
-            <section class="form-section">
-              <div class="section-title">
-                <span>Q2</span>
-                <h3>Select Category</h3>
-              </div>
-
-              <div class="choice-grid" role="radiogroup" aria-label="Select request category">
-                <label class="choice-card">
-                  <input type="radio" name="category" value="Social Media">
-                  <strong>Social Media</strong>
-                  <small>Creative, post-event, external or partner event</small>
-                </label>
-
-                <label class="choice-card">
-                  <input type="radio" name="category" value="PR">
-                  <strong>PR</strong>
-                  <small>Press release and communication note</small>
-                </label>
-
-                <label class="choice-card">
-                  <input type="radio" name="category" value="Achievements">
-                  <strong>Achievements</strong>
-                  <small>Startup or startup mission achievement highlights</small>
-                </label>
-              </div>
-
-              <p class="support-copy">
-                You can leave this blank and still continue. The team can classify the request later.
-              </p>
-            </section>
-
-            <div class="step-actions">
-              <button type="button" class="primary-button" id="introNextButton">Next</button>
-            </div>
-          </div>
-
-          <div class="step-panel hidden" data-step-panel="social-type">
-            <section class="form-section">
-              <div class="section-title">
-                <span>Q3</span>
-                <h3>Social Media Type</h3>
-              </div>
-
-              <div class="choice-grid" role="radiogroup" aria-label="Select social media type">
-                <label class="choice-card">
-                  <input type="radio" name="socialType" value="New Creative">
-                  <strong>New Creative</strong>
-                  <small>Fresh event creative or promotional post</small>
-                </label>
-
-                <label class="choice-card">
-                  <input type="radio" name="socialType" value="Post Event">
-                  <strong>Post Event Poster</strong>
-                  <small>Poster based on completed event coverage</small>
-                </label>
-
-                <label class="choice-card">
-                  <input type="radio" name="socialType" value="External or Partner Event">
-                  <strong>External or Partner Event</strong>
-                  <small>External event promotion or collaboration post</small>
-                </label>
-              </div>
-
-              <p class="support-copy">
-                If you are not sure yet, move ahead anyway. The request will still be saved.
-              </p>
-            </section>
-
-            <div class="step-actions">
-              <button type="button" class="ghost-button" data-go-step="intro">Back</button>
-              <button type="button" class="primary-button" id="socialTypeNextButton">Next</button>
-            </div>
-          </div>
-
-          <div class="step-panel hidden" data-step-panel="social-details">
-            <section class="form-section hidden" data-social-branch="New Creative">
-              <div class="section-title">
-                <span>Q4</span>
-                <h3>New Creative Details</h3>
-              </div>
-
-              <div class="field-grid two-col">
-                <label class="field">
-                  <span>Name of event</span>
-                  <input type="text" name="newCreativeEventName">
-                </label>
-                <label class="field">
-                  <span>Date of event</span>
-                  <input type="date" name="newCreativeEventDate">
-                </label>
-                <label class="field">
-                  <span>Time</span>
-                  <input type="time" name="newCreativeEventTime">
-                </label>
-                <label class="field">
-                  <span>Location</span>
-                  <input type="text" name="newCreativeLocation" placeholder="Venue / city">
-                </label>
-                <label class="field">
-                  <span>Registration Link</span>
-                  <input type="url" name="newCreativeRegistrationLink" placeholder="https://">
-                </label>
-                <label class="field">
-                  <span>Speaker details</span>
-                  <input type="text" name="newCreativeSpeakerDetails" placeholder="Speaker names, titles">
-                </label>
-                <label class="field">
-                  <span>Drive link to photographs</span>
-                  <input type="url" name="newCreativePhotoDriveLink" placeholder="https://">
-                </label>
-                <label class="field">
-                  <span>LinkedIn Profile</span>
-                  <input type="url" name="newCreativeLinkedinProfile" placeholder="https://linkedin.com/in/...">
-                </label>
-                <label class="field">
-                  <span>Partner institutions and logos</span>
-                  <input type="text" name="newCreativePartnerInstitutions" placeholder="Institutions / logo notes">
-                </label>
-                <label class="field">
-                  <span>Tagging links</span>
-                  <input type="text" name="newCreativeTaggingLinks" placeholder="Instagram / LinkedIn / X handles">
-                </label>
-                <label class="field full-width">
-                  <span>Brief description of the event</span>
-                  <textarea name="newCreativeDescription" rows="4" placeholder="Share the message or event context"></textarea>
-                </label>
-              </div>
-            </section>
-
-            <section class="form-section hidden" data-social-branch="Post Event">
-              <div class="section-title">
-                <span>Q4</span>
-                <h3>Post-Event Poster Details</h3>
-              </div>
-
-              <div class="field-grid two-col">
-                <label class="field">
-                  <span>Title</span>
-                  <input type="text" name="postEventTitle">
-                </label>
-                <label class="field">
-                  <span>Date</span>
-                  <input type="date" name="postEventDate">
-                </label>
-                <label class="field">
-                  <span>Location</span>
-                  <input type="text" name="postEventLocation">
-                </label>
-                <label class="field">
-                  <span>Drive link to photos</span>
-                  <input type="url" name="postEventPhotoDriveLink" placeholder="https://">
-                </label>
-                <label class="field full-width">
-                  <span>Tagging details</span>
-                  <textarea name="postEventTaggingDetails" rows="3" placeholder="Mention accounts or URLs to tag"></textarea>
-                </label>
-              </div>
-            </section>
-
-            <section class="form-section hidden" data-social-branch="External or Partner Event">
-              <div class="section-title">
-                <span>Q4</span>
-                <h3>External or Partner Event Details</h3>
-              </div>
-
-              <div class="field-grid two-col">
-                <label class="field">
-                  <span>Name of event</span>
-                  <input type="text" name="externalEventName">
-                </label>
-                <label class="field">
-                  <span>Partner organisation</span>
-                  <input type="text" name="externalPartnerOrganisation">
-                </label>
-                <label class="field">
-                  <span>Registration Link</span>
-                  <input type="url" name="externalRegistrationLink" placeholder="https://">
-                </label>
-                <label class="field">
-                  <span>Date</span>
-                  <input type="date" name="externalEventDate">
-                </label>
-                <label class="field">
-                  <span>Location</span>
-                  <input type="text" name="externalEventLocation">
-                </label>
-                <label class="field">
-                  <span>Creative to be published</span>
-                  <input type="text" name="externalCreativeToBePublished" placeholder="Poster, story, reel, carousel">
-                </label>
-                <label class="field full-width">
-                  <span>Tagging links</span>
-                  <textarea name="externalTaggingLinks" rows="3" placeholder="Mention accounts or URLs to tag"></textarea>
-                </label>
-              </div>
-            </section>
-
-            <section class="form-section submission-section">
-              <div class="submit-panel">
-                <div class="action-bar">
-                  <button type="button" class="ghost-button" data-go-step="social-type">Back</button>
-                  <button type="submit" class="primary-button">Submit</button>
-                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
-                </div>
-                <p class="status-message" role="status" aria-live="polite"></p>
-              </div>
-            </section>
-          </div>
-
-          <div class="step-panel hidden" data-step-panel="achievements">
-            <section class="form-section">
-              <div class="section-title">
-                <span>Q3</span>
-                <h3>Achievement Details</h3>
-              </div>
-
-              <div class="field-grid two-col">
-                <label class="field">
-                  <span>Startups / Startup mission</span>
-                  <input type="text" name="achievementStartupName">
-                </label>
-                <label class="field">
-                  <span>Photos if any</span>
-                  <input type="url" name="achievementPhotos" placeholder="Drive link / image URL">
-                </label>
-                <label class="field">
-                  <span>Logos to be included</span>
-                  <input type="text" name="achievementLogos" placeholder="Startup / partner logos">
-                </label>
-                <label class="field">
-                  <span>Tagging links</span>
-                  <input type="text" name="achievementTaggingLinks" placeholder="Social handles or profile links">
-                </label>
-                <label class="field">
-                  <span>Contact details of startup</span>
-                  <input type="text" name="achievementContactDetails" placeholder="Can be filled later if needed">
-                </label>
-                <label class="field full-width">
-                  <span>Brief description</span>
-                  <textarea name="achievementDescription" rows="4" placeholder="Describe the achievement and why it matters"></textarea>
-                </label>
-              </div>
-            </section>
-
-            <section class="form-section submission-section">
-              <div class="submit-panel">
-                <div class="action-bar">
-                  <button type="button" class="ghost-button" data-go-step="intro">Back</button>
-                  <button type="submit" class="primary-button">Submit</button>
-                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
-                </div>
-                <p class="status-message" role="status" aria-live="polite"></p>
-              </div>
-            </section>
-          </div>
-
-          <div class="step-panel hidden" data-step-panel="pr">
-            <section class="form-section">
-              <div class="section-title">
-                <span>Q3</span>
-                <h3>Press Release Details</h3>
-              </div>
-
-              <div class="field-grid two-col">
-                <label class="field full-width">
-                  <span>What is the event or announcement?</span>
-                  <textarea name="prEventAnnouncement" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Who is involved?</span>
-                  <textarea name="prWhoIsInvolved" rows="3"></textarea>
-                </label>
-                <label class="field">
-                  <span>When will / did the event take place?</span>
-                  <input type="datetime-local" name="prWhen">
-                </label>
-                <label class="field">
-                  <span>Where is the event being held?</span>
-                  <input type="text" name="prWhere">
-                </label>
-                <label class="field full-width">
-                  <span>Why is this event or announcement significant?</span>
-                  <textarea name="prWhySignificant" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>What are the key highlights or major announcements?</span>
-                  <textarea name="prKeyHighlights" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Are there any notable speakers or guests?</span>
-                  <textarea name="prNotableSpeakers" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>What is the background or context of the event?</span>
-                  <textarea name="prBackgroundContext" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Are there any quotes from key individuals?</span>
-                  <textarea name="prQuotes" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Do you have any testimonials or feedback from attendees?</span>
-                  <textarea name="prTestimonials" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Are there any follow-up events or next steps?</span>
-                  <textarea name="prFollowUpEvents" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Where can readers find more information?</span>
-                  <textarea name="prMoreInformation" rows="3" placeholder="Websites, social media pages, or contact details"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Upload photos, videos, or other media related to the event</span>
-                  <textarea name="prMediaAssets" rows="3" placeholder="Drive links to photographs, visuals, agendas, posters, videos"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Provide captions for the visual content</span>
-                  <textarea name="prCaptions" rows="3"></textarea>
-                </label>
-                <label class="field full-width">
-                  <span>Who will be the contact for review and POC?</span>
-                  <textarea name="prContactPerson" rows="3"></textarea>
-                </label>
-              </div>
-            </section>
-
-            <section class="form-section submission-section">
-              <div class="submit-panel">
-                <div class="action-bar">
-                  <button type="button" class="ghost-button" data-go-step="intro">Back</button>
-                  <button type="submit" class="primary-button">Submit</button>
-                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
-                </div>
-                <p class="status-message" role="status" aria-live="polite"></p>
-              </div>
-            </section>
-          </div>
-
-          <div class="step-panel hidden" data-step-panel="details-empty">
-            <section class="form-section">
-              <div class="section-title">
-                <span>Q3</span>
-                <h3>Ready to Submit</h3>
-              </div>
-              <p class="empty-state-copy">
-                No category has been selected yet. You can still submit this as a rough request, and the team can classify it from the workflow desk later.
-              </p>
-            </section>
-
-            <section class="form-section submission-section">
-              <div class="submit-panel">
-                <div class="action-bar">
-                  <button type="button" class="ghost-button" data-go-step="intro">Back</button>
-                  <button type="submit" class="primary-button">Submit</button>
-                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
-                </div>
-                <p class="status-message" role="status" aria-live="polite"></p>
-              </div>
-            </section>
-          </div>
-        </form>
-      </section>
-
-      <section class="summary-shell hidden" id="summarySection">
-        <div class="section-heading">
-          <p class="eyebrow">Submission Summary</p>
-          <h2>Your request has been captured</h2>
-          <p>
-            The summary below is ready to print, save, or review. It is also added to the workflow desk locally for the rough admin view.
-          </p>
-        </div>
-
-        <div class="summary-card" id="summaryCard">
-          <div class="summary-placeholder">
-            Submit the form to generate a structured summary here.
-          </div>
-        </div>
+        <div class="tag-row" id="tagFilters" aria-label="Event filters"></div>
+        <div class="event-grid" id="eventGrid"></div>
       </section>
     </main>
 
