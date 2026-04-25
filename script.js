@@ -204,7 +204,6 @@ function renderEvents() {
       </div>
       <div class="event-copy">
         <div class="event-meta-row">
-          ${eventItem.tag ? `<span class="tag-pill">${sanitizeText(eventItem.tag)}</span>` : ""}
           <span class="meta-note">${sanitizeText(formatDate(eventItem.date))}</span>
         </div>
         <h3>${sanitizeText(eventItem.title)}</h3>
