@@ -40,7 +40,12 @@ function getEvents() {
 }
 
 function saveEvents(events) {
-  writeJsonStorage(STORAGE_KEYS.events, events);
+  try {
+    writeJsonStorage(STORAGE_KEYS.events, events);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 function getAnalytics() {
@@ -74,6 +79,39 @@ function fileToDataUrl(file) {
     reader.onerror = () => reject(new Error("Could not read the selected image."));
     reader.readAsDataURL(file);
   });
+}
+
+function compressImageDataUrl(dataUrl, maxWidth = 1600, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const scale = Math.min(1, maxWidth / image.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+
+      const context = canvas.getContext("2d");
+      if (!context) {
+        resolve(dataUrl);
+        return;
+      }
+
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/webp", quality));
+    };
+    image.onerror = () => reject(new Error("Could not process the selected image."));
+    image.src = dataUrl;
+  });
+}
+
+async function fileToOptimizedDataUrl(file) {
+  const rawDataUrl = await fileToDataUrl(file);
+
+  if (file.size < 350 * 1024) {
+    return rawDataUrl;
+  }
+
+  return compressImageDataUrl(rawDataUrl);
 }
 
 function formatDate(value) {
@@ -315,6 +353,35 @@ function refreshBackend() {
   renderInventory();
 }
 
+function trySaveEventsWithFallback(record, events, existing) {
+  const nextEvents = existing
+    ? events.map((entry) => (entry.id === record.id ? record : entry))
+    : [record, ...events];
+
+  if (saveEvents(nextEvents)) {
+    return { ok: true, imageDropped: false };
+  }
+
+  if (!record.imageDataUrl) {
+    return { ok: false, imageDropped: false };
+  }
+
+  const fallbackRecord = {
+    ...record,
+    imageDataUrl: ""
+  };
+
+  const fallbackEvents = existing
+    ? events.map((entry) => (entry.id === fallbackRecord.id ? fallbackRecord : entry))
+    : [fallbackRecord, ...events];
+
+  if (saveEvents(fallbackEvents)) {
+    return { ok: true, imageDropped: true };
+  }
+
+  return { ok: false, imageDropped: false };
+}
+
 loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const formData = new FormData(loginForm);
@@ -352,7 +419,7 @@ creativeUpload.addEventListener("change", async () => {
   }
 
   try {
-    uploadedCreativeDataUrl = await fileToDataUrl(file);
+    uploadedCreativeDataUrl = await fileToOptimizedDataUrl(file);
     formStatus.textContent = "Creative uploaded successfully.";
     formStatus.classList.remove("is-error");
     renderCreativePreview();
@@ -429,16 +496,22 @@ eventForm.addEventListener("submit", (event) => {
     updatedAt: now
   };
 
-  const nextEvents = existing
-    ? events.map((entry) => (entry.id === record.id ? record : entry))
-    : [record, ...events];
+  const saveResult = trySaveEventsWithFallback(record, events, existing);
 
-  saveEvents(nextEvents);
-  formStatus.textContent = existing ? "Event updated." : "Event created.";
-  formStatus.classList.remove("is-error");
+  if (!saveResult.ok) {
+    formStatus.textContent = "Could not save this event. Please use a smaller creative or try an image URL instead.";
+    formStatus.classList.add("is-error");
+    return;
+  }
+
   refreshBackend();
   resetFormState();
-  formStatus.textContent = existing ? "Event updated." : "Event created.";
+  formStatus.textContent = saveResult.imageDropped
+    ? "Event saved, but the uploaded creative was too large for browser storage. Use a smaller image or image URL for the visual."
+    : existing
+      ? "Event updated."
+      : "Event created.";
+  formStatus.classList.toggle("is-error", saveResult.imageDropped);
 });
 
 if (hasSession()) {
