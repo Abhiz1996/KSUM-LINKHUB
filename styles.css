@@ -277,18 +277,12 @@ img {
   text-transform: uppercase;
 }
 
-.hero-stats,
 .backend-metrics {
   display: grid;
   gap: 16px;
 }
 
-.hero-stats {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 28px;
-}
-
-.stat-chip,
+.metric-block,
 .aside-card,
 .metric-block,
 .preview-surface,
@@ -299,7 +293,6 @@ img {
   background: rgba(255, 255, 255, 0.72);
 }
 
-.stat-chip strong,
 .metric-block strong {
   display: block;
   font-family: "Space Grotesk", sans-serif;
@@ -632,7 +625,7 @@ img {
 }
 
 @media (max-width: 1080px) {
-  .hero-stage,
+.hero-stage,
   .masthead,
   .workspace-banner,
   .control-strip {
@@ -644,8 +637,7 @@ img {
   .backend-grid,
   .analytics-grid-two,
   .backend-metrics,
-  .field-grid.two-col,
-  .hero-stats {
+  .field-grid.two-col {
     grid-template-columns: 1fr;
   }
 

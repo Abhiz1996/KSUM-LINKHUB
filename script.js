@@ -7,9 +7,6 @@ const STORAGE_KEYS = {
 const eventGrid = document.querySelector("#eventGrid");
 const tagFilters = document.querySelector("#tagFilters");
 const searchInput = document.querySelector("#searchInput");
-const activeEventCount = document.querySelector("#activeEventCount");
-const trackedClickCount = document.querySelector("#trackedClickCount");
-const visitorCount = document.querySelector("#visitorCount");
 
 let activeTag = "all";
 
@@ -161,19 +158,6 @@ function trackClick(eventItem) {
   saveAnalytics(analytics);
 }
 
-function renderHeroMetrics() {
-  const analytics = getAnalytics();
-  activeEventCount.textContent = String(getActiveEvents().length);
-  trackedClickCount.textContent = String(analytics.clicks.length);
-
-  const visitors = new Set([
-    ...analytics.pageViews.map((entry) => entry.visitorId),
-    ...analytics.clicks.map((entry) => entry.visitorId)
-  ]);
-
-  visitorCount.textContent = String(visitors.size);
-}
-
 function renderTagFilters() {
   const tags = Array.from(new Set(
     getActiveEvents()
@@ -246,7 +230,6 @@ function renderEvents() {
       }
 
       trackClick(eventItem);
-      renderHeroMetrics();
       window.open(eventItem.url, "_blank", "noopener,noreferrer");
     });
   });
@@ -255,6 +238,5 @@ function renderEvents() {
 searchInput.addEventListener("input", renderEvents);
 
 trackPageView();
-renderHeroMetrics();
 renderTagFilters();
 renderEvents();
