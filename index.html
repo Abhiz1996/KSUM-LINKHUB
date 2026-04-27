@@ -5,66 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Public event frontend for Kerala Startup Mission with live programs, details, and direct registration links."
+      content="Wedding invitation for Dr. Anand and Dr. Gopika with an interactive opening experience and animated invitation card."
     >
-    <title>KSUM LinkHub</title>
+    <title>Dr. Anand & Dr. Gopika | Wedding Invitation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Mea+Culpa&display=swap"
       rel="stylesheet"
     >
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="wedding.css">
   </head>
-  <body class="public-body">
-    <div class="backdrop-grid" aria-hidden="true"></div>
+  <body class="invitation-body">
+    <div class="petal-layer" aria-hidden="true" id="petalLayer"></div>
 
-    <main class="shell">
-      <header class="masthead">
-        <a class="brand-lockup" href="index.html" aria-label="Kerala Startup Mission">
-          <img src="assets/ksum-logo.png" alt="Kerala Startup Mission logo" class="brand-logo">
-          <span class="brand-copy">
-            <strong>Kerala Startup Mission</strong>
-            <small>Live events frontend</small>
-          </span>
-        </a>
+    <main>
+      <section class="opening-stage" id="home">
+        <div class="ambient ambient-left" aria-hidden="true"></div>
+        <div class="ambient ambient-right" aria-hidden="true"></div>
 
-        <nav class="top-actions" aria-label="Primary">
-          <a class="text-link" href="#eventsSection">Browse Events</a>
-          <a class="pill-link" href="dashboard.html">Backend Login</a>
-        </nav>
-      </header>
+        <div class="opening-copy reveal">
+          <p class="eyebrow">Sacred Union</p>
+          <p class="intro-note">Invite you to celebrate their marriage</p>
+          <h1>
+            <span>Dr. Anand</span>
+            <em>&amp;</em>
+            <span>Dr. Gopika</span>
+          </h1>
+          <p class="opening-date">Wednesday, the 17th of June, 2026</p>
+          <p class="opening-venue">Liya Convention Centre, Kattakada • 10:00 AM</p>
 
-      <section class="hero-stage">
-        <div class="hero-column">
-          <h1>KSUM EVENT HUB</h1>
-          <p class="hero-copy hero-copy-tight">
-            Explore live Kerala Startup Mission events, updates, and registrations in one place.
+          <div class="opening-actions">
+            <button type="button" class="primary-cta" id="openInvitationButton">
+              Open Invitation
+            </button>
+            <a class="secondary-cta" href="#weddingCard">Skip to card</a>
+          </div>
+        </div>
+
+        <div class="opening-portrait reveal">
+          <div class="portrait-frame">
+            <img
+              src="assets/hero.png"
+              alt="Dr. Anand and Dr. Gopika smiling at one another"
+              class="portrait-main"
+            >
+            <img
+              src="assets/hero.jpeg"
+              alt="Dr. Anand and Dr. Gopika sharing a quiet moment"
+              class="portrait-accent"
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="invitation-stage" id="weddingCard">
+        <div class="section-head reveal">
+          <p class="eyebrow">Wedding Invitation</p>
+          <h2>A day woven with blessings, music, flowers, and family.</h2>
+          <p>
+            Tap the card to unfold the full celebration. The front holds the wedding ceremony.
+            The inside reveals the reception details from the invitation.
           </p>
         </div>
 
-        <aside class="hero-aside">
-          <div class="hero-orb-card">
-            <span class="hero-orb hero-orb-one"></span>
-            <span class="hero-orb hero-orb-two"></span>
-            <span class="hero-orb hero-orb-three"></span>
+        <div class="invitation-layout">
+          <aside class="details-panel reveal">
+            <div class="detail-block">
+              <p class="eyebrow">Ceremony</p>
+              <h3>Shubh Vivah</h3>
+              <p>Wednesday, 17 June 2026</p>
+              <p>10:00 AM</p>
+              <p>Liya Convention Centre, Kattakada</p>
+            </div>
+
+            <div class="detail-block countdown-block">
+              <p class="eyebrow">Countdown</p>
+              <div class="countdown-grid" id="countdownGrid" aria-live="polite">
+                <div><strong>00</strong><span>Days</span></div>
+                <div><strong>00</strong><span>Hours</span></div>
+                <div><strong>00</strong><span>Minutes</span></div>
+                <div><strong>00</strong><span>Seconds</span></div>
+              </div>
+            </div>
+
+            <div class="detail-block">
+              <p class="eyebrow">Location</p>
+              <p>RDR Convention Center, Edapazhanji, Trivandrum, Kerala, India</p>
+              <div class="link-row">
+                <a
+                  href="https://maps.app.goo.gl/eyaeLrBUsDAbED596"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Map
+                </a>
+                <a
+                  href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Dr.+Anand+%26+Dr.+Gopika+Wedding+Reception&dates=20260617T180000/20260617T210000&details=Join+us+for+the+wedding+reception+celebration&location=RDR+Convention+Center,+Edapazhanji,+Trivandrum"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Add to Calendar
+                </a>
+              </div>
+            </div>
+          </aside>
+
+          <div class="card-stage reveal">
+            <button type="button" class="invitation-card-shell" id="invitationCardButton" aria-expanded="false">
+              <span class="card-hint">Tap to open</span>
+
+              <span class="invitation-card-face invitation-card-front">
+                <span class="floral-corner floral-top-left" aria-hidden="true"></span>
+                <span class="floral-corner floral-top-right" aria-hidden="true"></span>
+                <span class="floral-corner floral-bottom-left" aria-hidden="true"></span>
+                <span class="floral-corner floral-bottom-right" aria-hidden="true"></span>
+
+                <span class="card-copy">
+                  <span class="eyebrow">Main Wedding Card</span>
+                  <strong>Dr. Anand &amp; Dr. Gopika</strong>
+                  <em>With joy in our hearts and love in every blessing</em>
+                  <span class="divider"></span>
+                  <span>Wedding Ceremony</span>
+                  <span>Wednesday, 17 June 2026</span>
+                  <span>10:00 AM</span>
+                  <span>Liya Convention Centre, Kattakada</span>
+                </span>
+              </span>
+
+              <span class="invitation-card-face invitation-card-inside">
+                <span class="inside-grid">
+                  <span class="inside-panel">
+                    <span class="eyebrow">Reception Ceremony</span>
+                    <strong>Save The Date</strong>
+                    <span>Scratch-style reveal reimagined as an unfolding card.</span>
+                  </span>
+
+                  <span class="inside-panel">
+                    <span class="eyebrow">Reception Details</span>
+                    <strong>17 June 2026</strong>
+                    <span>6:00 PM to 9:00 PM</span>
+                    <span>RDR Convention Center</span>
+                    <span>Edapazhanji, Trivandrum</span>
+                    <span>We look forward to celebrating with you.</span>
+                  </span>
+                </span>
+              </span>
+            </button>
           </div>
-        </aside>
-      </section>
-
-      <section class="control-strip" id="eventsSection">
-        <div>
-          <p class="kicker">Discover</p>
-          <h2>Active event shelf</h2>
         </div>
-        <label class="search-wrap">
-          <span class="sr-only">Search active events</span>
-          <input type="search" id="searchInput" placeholder="Search by event, theme, or venue">
-        </label>
       </section>
-
-      <div class="filter-row" id="tagFilters" aria-label="Event filters"></div>
-      <section class="event-gallery" id="eventGrid"></section>
     </main>
 
     <script src="script.js"></script>
